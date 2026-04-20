@@ -36,7 +36,7 @@ body {
 
 a {
   text-decoration: none;
-  color: inherit;
+  /* 🔥 SE ELIMINÓ color: inherit PARA EVITAR TEXTO INVISIBLE */
 }
 
 button,
