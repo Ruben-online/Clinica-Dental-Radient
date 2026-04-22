@@ -243,7 +243,7 @@ Hora: ${selectedTime}`
           >
             <div className="rounded-[3rem] overflow-hidden shadow-2xl">
               <img
-                src="https://images.unsplash.com/photo-1771270731007-5998fa136d12?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
+                src="Radient1.jpeg"
                 alt="Clínica dental moderna"
                 className="w-full h-[600px] object-cover"
               />
@@ -365,14 +365,14 @@ Hora: ${selectedTime}`
             >
               <div className="rounded-3xl overflow-hidden shadow-lg">
                 <img
-                  src="https://images.unsplash.com/photo-1729162128021-f37dca3ff30d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
+                  src="/DSC09999.png"
                   alt="Doctor"
                   className="w-full h-72 object-cover"
                 />
               </div>
               <div className="rounded-3xl overflow-hidden shadow-lg mt-12">
                 <img
-                  src="https://images.unsplash.com/photo-1770134223774-13b735e29201?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
+                  src="IMG_8387.png"
                   alt="Equipo médico"
                   className="w-full h-72 object-cover"
                 />
