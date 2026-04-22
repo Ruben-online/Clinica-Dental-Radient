@@ -294,7 +294,7 @@ Hora: ${selectedTime}`
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {[
               {
                 icon: Smile,
@@ -323,6 +323,34 @@ Hora: ${selectedTime}`
                 description:
                   "Atención inmediata para emergencias dentales en cualquier momento.",
                 delay: 0.4,
+              },
+              {
+                icon: Smile,
+                title: "Limpieza Dental",
+                description:
+                  "Eliminación de sarro y placa para mantener una sonrisa saludable.",
+                delay: 0.5,
+              },
+              {
+                icon: Shield,
+                title: "Implantes Dentales",
+                description:
+                  "Reemplazo de piezas dentales con soluciones duraderas y estéticas.",
+                delay: 0.6,
+              },
+              {
+                icon: Award,
+                title: "Endodoncia",
+                description:
+                  "Tratamientos de conducto para salvar dientes dañados.",
+                delay: 0.7,
+              },
+              {
+                icon: Clock,
+                title: "Cirugía Dental",
+                description:
+                  "Procedimientos quirúrgicos seguros con tecnología avanzada.",
+                delay: 0.8,
               },
             ].map((service, index) => (
               <motion.div
@@ -361,7 +389,7 @@ Hora: ${selectedTime}`
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.7 }}
-              className="grid grid-cols-2 gap-6"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
             >
               <div className="rounded-3xl overflow-hidden shadow-lg">
                 <img
@@ -370,10 +398,19 @@ Hora: ${selectedTime}`
                   className="w-full h-72 object-cover"
                 />
               </div>
-              <div className="rounded-3xl overflow-hidden shadow-lg mt-12">
+
+              <div className="rounded-3xl overflow-hidden shadow-lg mt-0 sm:mt-12">
                 <img
                   src="IMG_8387.png"
                   alt="Equipo médico"
+                  className="w-full h-72 object-cover"
+                />
+              </div>
+
+              <div className="rounded-3xl overflow-hidden shadow-lg mt-0 lg:mt-6">
+                <img
+                  src="/IMG_5514.png"
+                  alt="Clínica dental"
                   className="w-full h-72 object-cover"
                 />
               </div>
@@ -393,7 +430,7 @@ Hora: ${selectedTime}`
               </h2>
 
               <p className="text-[var(--navy)]/80 text-lg mb-6 leading-relaxed">
-                Con más de 15 años de experiencia, DentalCare es referente en
+                Con más de 15 años de experiencia, Radient es referente en
                 odontología moderna y atención personalizada. Nuestro equipo
                 está comprometido con tu bienestar y sonrisa.
               </p>
@@ -468,7 +505,7 @@ Hora: ${selectedTime}`
               className="rounded-3xl overflow-hidden shadow-xl h-96"
             >
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3711.2207468043835!2d-91.50630172507726!3d14.537223185941627!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x858ec3b91ca7690d%3A0x7a85ae762341073f!2sRadient%20Cl%C3%ADnica%20Dental!5e1!3m2!1ses-419!2sgt!4v1776293841759!5m2!1ses-419!2sgt"
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3711.2207468043835!2d-91.50630172507726!3d14.537223185941627!2m3!1f0!3f0!0f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x858ec3b91ca7690d%3A0x7a85ae762341073f!2sRadient%20Cl%C3%ADnica%20Dental!5e1!3m2!1ses-419!2sgt!4v1776293841759!5m2!1ses-419!2sgt"
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
@@ -498,7 +535,7 @@ Hora: ${selectedTime}`
                   <p className="text-[var(--navy)]/80 leading-relaxed">
                     Radient Clínica Dental
                     <br />
-                    Quetzaltenango, Guatemala
+                    Mazatenango, Guatemala
                   </p>
                 </div>
               </div>
@@ -551,11 +588,12 @@ Hora: ${selectedTime}`
                 <div className="space-y-2 text-[var(--navy)]/80">
                   <div className="flex justify-between">
                     <span>Lunes - Viernes:</span>
-                    <span>8:00 AM - 8:00 PM</span>
+                    <span>9:00 AM - 1:00 PM</span>
+                    <span>2:00 PM - 6:00 PM</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Sábado:</span>
-                    <span>9:00 AM - 2:00 PM</span>
+                    <span>8:00 AM - 1:00 PM</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Domingo:</span>
