@@ -639,23 +639,45 @@ Hora: ${selectedTime}`
               <div className="bg-[var(--cream)] p-6 rounded-2xl border border-[var(--border)]">
                 <h3
                   style={{ fontFamily: "var(--font-heading)" }}
-                  className="text-xl text-[var(--charcoal)] mb-3"
+                  className="text-xl text-[var(--charcoal)] mb-4 flex items-center gap-2"
                 >
+                  <Clock className="w-5 h-5 text-[var(--mint)]" />
                   Horario de Atención
                 </h3>
-                <div className="space-y-2 text-[var(--navy)]/80">
-                  <div className="flex justify-between">
-                    <span>Lunes - Viernes:</span>
-                    <span>9:00 AM - 1:00 PM</span>
-                    <span>2:00 PM - 6:00 PM</span>
+
+                <div className="space-y-4">
+                  <div className="bg-white rounded-2xl border border-[var(--border)] p-4">
+                    <div className="flex justify-between items-start gap-4">
+                      <span className="font-semibold text-[var(--charcoal)]">
+                        Lunes - Viernes:
+                      </span>
+                      <div className="text-[var(--navy)]/80 text-sm sm:text-base text-right">
+                        <div>9:00 AM - 1:00 PM</div>
+                        <div>2:00 PM - 6:00 PM</div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Sábado:</span>
-                    <span>8:00 AM - 1:00 PM</span>
+
+                  <div className="bg-white rounded-2xl border border-[var(--border)] p-4">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-semibold text-[var(--charcoal)]">
+                        Sábado:
+                      </span>
+                      <span className="text-[var(--navy)]/80 text-sm sm:text-base">
+                        8:00 AM - 1:00 PM
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Domingo:</span>
-                    <span>Cerrado</span>
+
+                  <div className="bg-white rounded-2xl border border-[var(--border)] p-4">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="font-semibold text-[var(--charcoal)]">
+                        Domingo:
+                      </span>
+                      <span className="text-red-500 font-medium text-sm sm:text-base">
+                        Cerrado
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
