@@ -1,6 +1,8 @@
 "use client";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -9,12 +11,14 @@ export default function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+
     try {
       const res = await fetch("/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
+
       if (res.ok) {
         router.push("/dashboard");
       } else {
@@ -35,10 +39,11 @@ export default function Login() {
         backgroundPosition: "center",
       }}
     >
-      {/* Overlay oscuro */}
-      <div className="absolute inset-0" style={{ background: "rgba(27, 58, 92, 0.55)" }} />
+      <div
+        className="absolute inset-0"
+        style={{ background: "rgba(27, 58, 92, 0.55)" }}
+      />
 
-      {/* Card de login */}
       <div
         className="relative z-10 w-full max-w-md mx-4 rounded-2xl p-10"
         style={{
@@ -48,7 +53,6 @@ export default function Login() {
           border: "1px solid rgba(255, 255, 255, 0.25)",
         }}
       >
-        {/* Logo */}
         <div className="flex items-center gap-3 mb-8">
           <div
             className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -58,22 +62,29 @@ export default function Login() {
               <path d="M12 2C8.5 2 6 4.5 6 7.5c0 2.1.8 3.8 1.5 5.2.7 1.3 1 2.8 1 4.3 0 1.4.4 3 1.5 4 .4.4.9.5 1.3.3.6-.3.7-1 .7-1.8 0-.7.5-1.4 1-1.4s1 .7 1 1.4c0 .8.1 1.5.7 1.8.4.2.9.1 1.3-.3 1.1-1 1.5-2.6 1.5-4 0-1.5.3-3 1-4.3C18.2 11.3 19 9.6 19 7.5 19 4.5 16.5 2 12 2z" />
             </svg>
           </div>
+
           <div>
             <p className="text-white text-lg font-medium">Radient</p>
-            <p className="text-white/60 text-sm">Todo comienza con una sonrisa</p>
+            <p className="text-white/60 text-sm">
+              Todo comienza con una sonrisa
+            </p>
           </div>
         </div>
 
-        {/* Título */}
-        <h2 className="text-white text-2xl font-medium mb-1">Iniciar sesión</h2>
-        <p className="text-white/60 text-sm mb-8">Ingresa tus credenciales para acceder</p>
+        <h2 className="text-white text-2xl font-medium mb-1">
+          Iniciar sesión
+        </h2>
 
-        {/* Formulario */}
+        <p className="text-white/60 text-sm mb-8">
+          Ingresa tus credenciales para acceder
+        </p>
+
         <form onSubmit={handleLogin} className="space-y-5">
           <div>
             <label className="text-white/80 text-sm block mb-1.5">
               Correo electrónico
             </label>
+
             <input
               type="email"
               required
@@ -91,6 +102,7 @@ export default function Login() {
             <label className="text-white/80 text-sm block mb-1.5">
               Contraseña
             </label>
+
             <input
               type="password"
               required
@@ -104,15 +116,14 @@ export default function Login() {
             />
           </div>
 
-          {/* Recuperar contraseña */}
           <div className="flex justify-end">
-            <button
-              type="button"
-              className="text-sm transition"
+            <Link
+              href="/login/forgot-password"
+              className="text-sm transition hover:opacity-80"
               style={{ color: "#7AB5A0" }}
             >
               ¿Olvidaste tu contraseña?
-            </button>
+            </Link>
           </div>
 
           <button
