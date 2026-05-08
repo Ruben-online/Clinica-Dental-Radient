@@ -64,7 +64,7 @@ export default function Location() {
                 <p className="text-[var(--navy)]/80 leading-relaxed">
                   Radient Clínica Dental
                   <br />
-                  Mazatenango, Guatemala
+                  Mazatenango, Suchitepéquez, Guatemala
                 </p>
               </div>
             </div>
@@ -81,9 +81,7 @@ export default function Location() {
                   Teléfono
                 </h3>
                 <p className="text-[var(--navy)]/80">
-                  +502 0000-0000
-                  <br />
-                  +502 1111-1111
+                  +502 3074 8500
                 </p>
               </div>
             </div>
@@ -100,9 +98,7 @@ export default function Location() {
                   Email
                 </h3>
                 <p className="text-[var(--navy)]/80">
-                  info@radient.com
-                  <br />
-                  contacto@radient.com
+                  drakatyaespinoza@gmail.com
                 </p>
               </div>
             </div>

@@ -82,7 +82,7 @@ export default function Hero({ setShowBookingModal }) {
                     style={{ fontFamily: "var(--font-heading)" }}
                     className="text-3xl"
                   >
-                    15+
+                    8+
                   </div>
                   <div className="text-sm opacity-90">
                     Años de experiencia

@@ -53,7 +53,7 @@ export default function About() {
             </h2>
 
             <p className="text-[var(--navy)]/80 text-lg mb-6 leading-relaxed">
-              Con más de 15 años de experiencia, Radient es referente en
+              Con más de 8 años de experiencia, Radient es referente en
               odontología moderna y atención personalizada. Nuestro equipo
               está comprometido con tu bienestar y sonrisa.
             </p>
@@ -72,7 +72,7 @@ export default function About() {
                     style={{ fontFamily: "var(--font-heading)" }}
                     className="text-xl text-[var(--charcoal)]"
                   >
-                    5,000+
+                    500+
                   </div>
                   <div className="text-[var(--navy)]/80">
                     Pacientes felices
@@ -87,7 +87,7 @@ export default function About() {
                     style={{ fontFamily: "var(--font-heading)" }}
                     className="text-xl text-[var(--charcoal)]"
                   >
-                    98%
+                    90%
                   </div>
                   <div className="text-[var(--navy)]/80">Satisfacción</div>
                 </div>
