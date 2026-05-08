@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { FaFacebookF, FaInstagram } from "react-icons/fa";
+import { FaFacebookF, FaInstagram, FaWhatsapp } from "react-icons/fa";
 
 export default function Footer() {
   return (
@@ -77,6 +77,27 @@ export default function Footer() {
           >
             <FaInstagram size={18} />
           </Link>
+
+          <Link
+            href="https://wa.me/50230748500"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="WhatsApp de Radient"
+            className="
+              w-11 h-11
+              flex items-center justify-center
+              rounded-full
+              border border-gray-600
+              text-gray-300
+              hover:bg-white
+              hover:text-black
+              hover:border-white
+              transition-all duration-300
+            "
+          >
+            <FaWhatsapp size={18} />
+          </Link>
+
         </div>
 
         <p className="text-gray-400 text-sm">
