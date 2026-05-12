@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function Login() {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
 
@@ -16,7 +16,7 @@ export default function Login() {
       const res = await fetch("/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ username, password }),
       });
 
       if (res.ok) {
@@ -82,15 +82,15 @@ export default function Login() {
         <form onSubmit={handleLogin} className="space-y-5">
           <div>
             <label className="text-white/80 text-sm block mb-1.5">
-              Correo electrónico
+              Usuario
             </label>
 
             <input
-              type="email"
+              type="text"
               required
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => setUsername(e.target.value)}
               className="w-full px-4 py-3 rounded-xl text-white placeholder-white/40 outline-none transition"
-              placeholder="correo@ejemplo.com"
+              placeholder="Ingresa tu usuario"
               style={{
                 background: "rgba(255,255,255,0.12)",
                 border: "1px solid rgba(255,255,255,0.2)",
@@ -108,7 +108,7 @@ export default function Login() {
               required
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-4 py-3 rounded-xl text-white placeholder-white/40 outline-none transition"
-              placeholder="••••••••"
+              placeholder="Ingresa tu contraseña"
               style={{
                 background: "rgba(255,255,255,0.12)",
                 border: "1px solid rgba(255,255,255,0.2)",
