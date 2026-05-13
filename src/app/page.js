@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
+
 import Navbar from "@/components/layout/navbar";
 import Hero from "@/components/home/hero";
 import Services from "@/components/home/services";
@@ -7,19 +9,29 @@ import About from "@/components/home/about";
 import Location from "@/components/home/location";
 import Footer from "@/components/layout/footer";
 import BookingModal from "@/components/home/booking-modal";
-import { useMemo, useState } from "react";
 
 export default function Home() {
   const [showBookingModal, setShowBookingModal] = useState(false);
+
   const [currentMonth, setCurrentMonth] = useState(new Date());
+
   const [selectedDate, setSelectedDate] = useState(null);
+
   const [selectedTime, setSelectedTime] = useState("");
 
   const [clientName, setClientName] = useState("");
+
   const [clientLastName, setClientLastName] = useState("");
+
   const [clientPhone, setClientPhone] = useState("");
 
   const [bookingMessage, setBookingMessage] = useState("");
+
+  const [appointments, setAppointments] = useState([]);
+
+  useEffect(() => {
+    fetchAppointments();
+  }, []);
 
   const availableTimes = [
     "08:00 AM",
@@ -60,10 +72,13 @@ export default function Home() {
 
   const calendarDays = useMemo(() => {
     const year = currentMonth.getFullYear();
+
     const month = currentMonth.getMonth();
 
     const firstDayOfMonth = new Date(year, month, 1);
+
     const startDay = firstDayOfMonth.getDay();
+
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
     const days = [];
@@ -78,6 +93,18 @@ export default function Home() {
 
     return days;
   }, [currentMonth]);
+
+  const fetchAppointments = async () => {
+    try {
+      const res = await fetch("/api/citas");
+
+      const data = await res.json();
+
+      setAppointments(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const isSameDay = (date1, date2) => {
     if (!date1 || !date2) return false;
@@ -115,6 +142,25 @@ export default function Home() {
     setClientName("");
     setClientLastName("");
     setClientPhone("");
+    setBookingMessage("");
+  };
+
+  const isTimeOccupied = (time) => {
+    if (!selectedDate) return false;
+
+    const selectedDateString = selectedDate
+      .toISOString()
+      .split("T")[0];
+
+    return appointments.some((appointment) => {
+      const appointmentDate =
+        appointment.date.split("T")[0];
+
+      return (
+        appointmentDate === selectedDateString &&
+        appointment.time === time
+      );
+    });
   };
 
   const handleReserve = async () => {
@@ -125,15 +171,18 @@ export default function Home() {
       !clientLastName ||
       !clientPhone
     ) {
+      setBookingMessage("Completa todos los campos.");
       return;
     }
 
     try {
       const res = await fetch("/api/citas", {
         method: "POST",
+
         headers: {
           "Content-Type": "application/json",
         },
+
         body: JSON.stringify({
           clientName,
           clientLastName,
@@ -143,25 +192,32 @@ export default function Home() {
         }),
       });
 
-      const data = await res.json();
-
       if (!res.ok) {
+        const errorData = await res.json();
+
         setBookingMessage(
-          data.error || "Error al reservar cita"
+          errorData.error ||
+            "No se pudo crear la cita"
         );
 
         return;
       }
 
+      await fetchAppointments();
+
       setBookingMessage(
-        "Cita reservada correctamente. Nos pondremos en contacto contigo pronto."
+        "La cita fue agendada correctamente."
       );
 
-      resetBookingForm();
+      setTimeout(() => {
+        setShowBookingModal(false);
+
+        resetBookingForm();
+      }, 2500);
     } catch (error) {
       console.error(error);
 
-      setBookingMessage("Error del servidor");
+      setBookingMessage("Error del servidor.");
     }
   };
 
@@ -206,6 +262,7 @@ export default function Home() {
         handleReserve={handleReserve}
         todayNoTime={todayNoTime}
         bookingMessage={bookingMessage}
+        isTimeOccupied={isTimeOccupied}
       />
     </div>
   );

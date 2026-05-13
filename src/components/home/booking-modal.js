@@ -1,7 +1,11 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  X,
+} from "lucide-react";
 
 export default function BookingModal({
   showBookingModal,
@@ -30,6 +34,7 @@ export default function BookingModal({
   handleReserve,
   todayNoTime,
   bookingMessage,
+  isTimeOccupied,
 }) {
   const now = new Date();
 
@@ -57,23 +62,40 @@ export default function BookingModal({
           className="fixed inset-0 z-[100] bg-black/45 backdrop-blur-sm flex items-center justify-center px-4"
         >
           <motion.div
-            initial={{ opacity: 0, scale: 0.96, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.96, y: 20 }}
+            initial={{
+              opacity: 0,
+              scale: 0.96,
+              y: 20,
+            }}
+            animate={{
+              opacity: 1,
+              scale: 1,
+              y: 0,
+            }}
+            exit={{
+              opacity: 0,
+              scale: 0.96,
+              y: 20,
+            }}
             transition={{ duration: 0.25 }}
             className="w-full max-w-6xl bg-[var(--white-warm)] rounded-[2rem] shadow-2xl border border-[var(--border)] overflow-hidden"
           >
+            {/* Header */}
             <div className="flex items-center justify-between px-6 py-5 border-b border-[var(--border)]">
               <div>
                 <h2
-                  style={{ fontFamily: "var(--font-heading)" }}
+                  style={{
+                    fontFamily:
+                      "var(--font-heading)",
+                  }}
                   className="text-3xl text-[var(--charcoal)]"
                 >
                   Agenda tu Cita
                 </h2>
 
                 <p className="text-[var(--navy)]/75 mt-1">
-                  Selecciona una fecha, un horario y completa tus datos
+                  Selecciona una fecha, un horario
+                  y completa tus datos
                 </p>
               </div>
 
@@ -108,10 +130,17 @@ export default function BookingModal({
                   </button>
 
                   <h3
-                    style={{ fontFamily: "var(--font-heading)" }}
+                    style={{
+                      fontFamily:
+                        "var(--font-heading)",
+                    }}
                     className="text-2xl text-[var(--charcoal)]"
                   >
-                    {monthNames[currentMonth.getMonth()]}{" "}
+                    {
+                      monthNames[
+                        currentMonth.getMonth()
+                      ]
+                    }{" "}
                     {currentMonth.getFullYear()}
                   </h3>
 
@@ -145,11 +174,17 @@ export default function BookingModal({
                 <div className="grid grid-cols-7 gap-2">
                   {calendarDays.map((date, index) => {
                     if (!date) {
-                      return <div key={index} className="h-12" />;
+                      return (
+                        <div
+                          key={index}
+                          className="h-12"
+                        />
+                      );
                     }
 
                     const disabled =
-                      isPastDate(date) || isSunday(date);
+                      isPastDate(date) ||
+                      isSunday(date);
 
                     const selected = isSameDay(
                       date,
@@ -165,7 +200,8 @@ export default function BookingModal({
                       <button
                         key={index}
                         onClick={() =>
-                          !disabled && setSelectedDate(date)
+                          !disabled &&
+                          setSelectedDate(date)
                         }
                         disabled={disabled}
                         className={`h-12 rounded-2xl text-sm font-medium transition-all duration-300 border
@@ -190,7 +226,8 @@ export default function BookingModal({
                 </div>
 
                 <p className="text-sm text-[var(--navy)]/65 mt-5">
-                  Los domingos y las fechas pasadas no están disponibles.
+                  Los domingos y fechas pasadas no
+                  están disponibles.
                 </p>
               </div>
 
@@ -198,7 +235,10 @@ export default function BookingModal({
               <div className="p-6 md:p-8 border-b lg:border-b-0 lg:border-r border-[var(--border)]">
                 <div className="mb-6">
                   <h3
-                    style={{ fontFamily: "var(--font-heading)" }}
+                    style={{
+                      fontFamily:
+                        "var(--font-heading)",
+                    }}
                     className="text-2xl text-[var(--charcoal)] mb-2"
                   >
                     Horarios disponibles
@@ -209,7 +249,7 @@ export default function BookingModal({
                       ? `Fecha seleccionada: ${formatSelectedDate(
                           selectedDate
                         )}`
-                      : "Selecciona primero una fecha en el calendario"}
+                      : "Selecciona primero una fecha"}
                   </p>
                 </div>
 
@@ -228,17 +268,22 @@ export default function BookingModal({
                       isTodaySelected &&
                       timeMap[time] <= currentHour;
 
+                    const occupied =
+                      isTimeOccupied(time);
+
+                    const disabled =
+                      !selectedDate ||
+                      isPastHour ||
+                      occupied;
+
                     return (
                       <button
                         key={time}
                         onClick={() =>
-                          !isPastHour &&
-                          selectedDate &&
+                          !disabled &&
                           setSelectedTime(time)
                         }
-                        disabled={
-                          !selectedDate || isPastHour
-                        }
+                        disabled={disabled}
                         className={`px-4 py-3 rounded-2xl border transition-all duration-300 text-sm font-medium
                           ${
                             selectedTime === time
@@ -246,13 +291,21 @@ export default function BookingModal({
                               : "bg-[var(--cream)] text-[var(--charcoal)] border-[var(--border)]"
                           }
                           ${
-                            !selectedDate || isPastHour
+                            disabled
                               ? "opacity-35 cursor-not-allowed"
                               : "hover:bg-[var(--mint)] hover:text-white hover:border-[var(--mint)]"
                           }
                         `}
                       >
-                        {time}
+                        <div className="flex flex-col items-center">
+                          <span>{time}</span>
+
+                          {occupied && (
+                            <span className="text-[10px] mt-1">
+                              Ocupado
+                            </span>
+                          )}
+                        </div>
                       </button>
                     );
                   })}
@@ -277,7 +330,9 @@ export default function BookingModal({
                   <input
                     value={clientName}
                     onChange={(e) =>
-                      setClientName(e.target.value)
+                      setClientName(
+                        e.target.value
+                      )
                     }
                     placeholder="Nombre"
                     className="w-full px-4 py-3 rounded-2xl border"
@@ -286,7 +341,9 @@ export default function BookingModal({
                   <input
                     value={clientLastName}
                     onChange={(e) =>
-                      setClientLastName(e.target.value)
+                      setClientLastName(
+                        e.target.value
+                      )
                     }
                     placeholder="Apellido"
                     className="w-full px-4 py-3 rounded-2xl border"
@@ -295,7 +352,9 @@ export default function BookingModal({
                   <input
                     value={clientPhone}
                     onChange={(e) =>
-                      setClientPhone(e.target.value)
+                      setClientPhone(
+                        e.target.value
+                      )
                     }
                     placeholder="Teléfono"
                     className="w-full px-4 py-3 rounded-2xl border"

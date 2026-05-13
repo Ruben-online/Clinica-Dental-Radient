@@ -12,36 +12,20 @@ export async function POST(req) {
 
     const db = await connectDB();
 
-    const appointmentDate = new Date(date);
+    const existingAppointment = await db
+      .collection("citas")
+      .findOne({
+        date,
+        time,
+      });
 
-    const today = new Date();
-
-    const sameDay =
-      appointmentDate.getDate() === today.getDate() &&
-      appointmentDate.getMonth() === today.getMonth() &&
-      appointmentDate.getFullYear() === today.getFullYear();
-
-    const timeMap = {
-      "08:00 AM": 8,
-      "09:00 AM": 9,
-      "10:00 AM": 10,
-      "11:00 AM": 11,
-      "12:00 PM": 12,
-      "02:00 PM": 14,
-      "03:00 PM": 15,
-      "04:00 PM": 16,
-      "05:00 PM": 17,
-    };
-
-    const selectedHour = timeMap[time];
-
-    if (sameDay && selectedHour <= today.getHours()) {
+    if (existingAppointment) {
       return Response.json(
         {
-          error: "Ese horario ya no está disponible",
+          error: "Este horario ya está ocupado",
         },
         {
-          status: 400,
+          status: 409,
         }
       );
     }
