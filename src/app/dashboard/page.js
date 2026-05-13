@@ -5,7 +5,7 @@ import {
   CalendarDays,
   Clock,
   User,
-  ChevronLeft,
+ ChevronLeft,
   ChevronRight,
   Loader2,
 } from "lucide-react";
@@ -64,18 +64,19 @@ export default function CitasPage() {
     };
 
     const interval = setInterval(updateToday, 60000);
+
     return () => clearInterval(interval);
   }, []);
 
   const obtenerCitas = async () => {
     try {
       setLoading(true);
+
       const res = await fetch("/api/citas");
+
       const data = await res.json();
 
-      if (data.ok) {
-        setCitas(data.citas);
-      }
+      setCitas(data);
     } catch (error) {
       console.error("Error al cargar citas:", error);
     } finally {
@@ -87,6 +88,7 @@ export default function CitasPage() {
     const y = date.getFullYear();
     const m = String(date.getMonth() + 1).padStart(2, "0");
     const d = String(date.getDate()).padStart(2, "0");
+
     return `${y}-${m}-${d}`;
   };
 
@@ -98,14 +100,18 @@ export default function CitasPage() {
     a.getFullYear() === b.getFullYear();
 
   const isPastDate = (date) => date < today;
+
   const isSunday = (date) => date.getDay() === 0;
 
   const calendarDays = useMemo(() => {
     const year = currentMonth.getFullYear();
+
     const month = currentMonth.getMonth();
 
     const firstDay = new Date(year, month, 1);
+
     const startDay = firstDay.getDay();
+
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
     const days = [];
@@ -125,17 +131,22 @@ export default function CitasPage() {
     const grouped = {};
 
     citas.forEach((cita) => {
-      if (!grouped[cita.fecha]) {
-        grouped[cita.fecha] = [];
+      const citaDate = new Date(cita.date);
+
+      const key = formatDateKey(citaDate);
+
+      if (!grouped[key]) {
+        grouped[key] = [];
       }
 
-      grouped[cita.fecha].push(cita);
+      grouped[key].push(cita);
     });
 
     return grouped;
   }, [citas]);
 
   const selectedDateKey = formatDateKey(selectedDate);
+
   const citasDelDia = citasPorFecha[selectedDateKey] || [];
 
   return (
@@ -145,6 +156,7 @@ export default function CitasPage() {
         <h1 className="text-2xl font-semibold text-[#1B3A5C]">
           Bienvenido al sistema
         </h1>
+
         <p className="text-gray-500 mt-1">
           Aquí puedes visualizar las citas agendadas por día.
         </p>
@@ -156,6 +168,7 @@ export default function CitasPage() {
           <h2 className="text-3xl font-semibold text-[#1B3A5C]">
             Calendario de citas
           </h2>
+
           <p className="text-gray-500 mt-1">
             Selecciona una fecha para ver el resumen de citas del día.
           </p>
@@ -193,6 +206,7 @@ export default function CitasPage() {
                 {monthNames[currentMonth.getMonth()]}{" "}
                 {currentMonth.getFullYear()}
               </h2>
+
               <p className="text-sm text-gray-400">
                 El día de hoy se marca en azul
               </p>
@@ -233,15 +247,22 @@ export default function CitasPage() {
                 }
 
                 const dateKey = formatDateKey(date);
+
                 const dayCitas = citasPorFecha[dateKey] || [];
+
                 const selected = isSameDay(date, selectedDate);
+
                 const currentDay = isSameDay(date, today);
-                const disabled = isPastDate(date) || isSunday(date);
+
+                const disabled =
+                  isPastDate(date) || isSunday(date);
 
                 return (
                   <button
                     key={index}
-                    onClick={() => !disabled && setSelectedDate(date)}
+                    onClick={() =>
+                      !disabled && setSelectedDate(date)
+                    }
                     disabled={disabled}
                     className={`min-h-[90px] rounded-2xl border p-3 text-left transition-all
                       ${
@@ -258,7 +279,9 @@ export default function CitasPage() {
                       }`}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold">{date.getDate()}</span>
+                      <span className="font-semibold">
+                        {date.getDate()}
+                      </span>
 
                       {currentDay && (
                         <span className="text-[10px] px-2 py-1 rounded-full bg-white/20 text-white">
@@ -268,7 +291,9 @@ export default function CitasPage() {
                     </div>
 
                     {isSunday(date) && (
-                      <p className="text-xs mt-2 opacity-70">Cerrado</p>
+                      <p className="text-xs mt-2 opacity-70">
+                        Cerrado
+                      </p>
                     )}
 
                     {dayCitas.length > 0 && (
@@ -292,17 +317,19 @@ export default function CitasPage() {
           </div>
         </div>
 
-        {/* Resumen del día */}
+        {/* Resumen */}
         <div className="bg-white rounded-3xl border border-black/5 shadow-sm overflow-hidden">
           <div className="px-6 py-5 border-b border-black/5">
             <div className="flex items-center gap-3">
               <div className="w-11 h-11 rounded-xl bg-[#1B3A5C] text-white flex items-center justify-center">
                 <CalendarDays className="w-6 h-6" />
               </div>
+
               <div>
                 <h2 className="text-xl font-semibold text-[#1B3A5C]">
                   Resumen de citas
                 </h2>
+
                 <p className="text-sm text-gray-400">
                   {selectedDate.toLocaleDateString("es-GT", {
                     weekday: "long",
@@ -325,9 +352,11 @@ export default function CitasPage() {
                 <div className="w-16 h-16 mx-auto rounded-full bg-[#f4f7fa] flex items-center justify-center mb-4">
                   <CalendarDays className="w-8 h-8 text-gray-400" />
                 </div>
+
                 <p className="text-[#1B3A5C] font-medium">
                   No hay citas agendadas
                 </p>
+
                 <p className="text-sm text-gray-400 mt-1">
                   Selecciona otra fecha en el calendario.
                 </p>
@@ -346,33 +375,27 @@ export default function CitasPage() {
 
                       <div>
                         <h3 className="font-semibold text-[#1B3A5C]">
-                          {cita.nombre || cita.clientName || "Paciente"}
-                          {cita.apellido || cita.clientLastName
-                            ? ` ${cita.apellido || cita.clientLastName}`
-                            : ""}
+                          {cita.clientName || "Paciente"}{" "}
+                          {cita.clientLastName || ""}
                         </h3>
+
                         <p className="text-sm text-gray-400">
-                          {cita.telefono || cita.clientPhone || "Sin teléfono"}
+                          {cita.clientPhone || "Sin teléfono"}
                         </p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2 text-[#1B3A5C]">
                       <Clock className="w-4 h-4" />
+
                       <span className="font-medium">
-                        {cita.hora || "Sin hora"}
+                        {cita.time || "Sin hora"}
                       </span>
                     </div>
 
-                    {cita.servicio && (
-                      <p className="mt-2 text-sm text-gray-500">
-                        Servicio: {cita.servicio}
-                      </p>
-                    )}
-
-                    {cita.estado && (
+                    {cita.status && (
                       <span className="inline-block mt-3 px-3 py-1 rounded-full bg-[#7AB5A0]/20 text-[#1B3A5C] text-xs font-medium">
-                        {cita.estado}
+                        {cita.status}
                       </span>
                     )}
                   </div>
