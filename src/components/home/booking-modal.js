@@ -29,7 +29,24 @@ export default function BookingModal({
   resetBookingForm,
   handleReserve,
   todayNoTime,
+  bookingMessage,
 }) {
+  const now = new Date();
+
+  const currentHour = now.getHours();
+
+  const timeMap = {
+    "08:00 AM": 8,
+    "09:00 AM": 9,
+    "10:00 AM": 10,
+    "11:00 AM": 11,
+    "12:00 PM": 12,
+    "02:00 PM": 14,
+    "03:00 PM": 15,
+    "04:00 PM": 16,
+    "05:00 PM": 17,
+  };
+
   return (
     <AnimatePresence>
       {showBookingModal && (
@@ -54,6 +71,7 @@ export default function BookingModal({
                 >
                   Agenda tu Cita
                 </h2>
+
                 <p className="text-[var(--navy)]/75 mt-1">
                   Selecciona una fecha, un horario y completa tus datos
                 </p>
@@ -130,14 +148,25 @@ export default function BookingModal({
                       return <div key={index} className="h-12" />;
                     }
 
-                    const disabled = isPastDate(date) || isSunday(date);
-                    const selected = isSameDay(date, selectedDate);
-                    const isToday = isSameDay(date, todayNoTime);
+                    const disabled =
+                      isPastDate(date) || isSunday(date);
+
+                    const selected = isSameDay(
+                      date,
+                      selectedDate
+                    );
+
+                    const isToday = isSameDay(
+                      date,
+                      todayNoTime
+                    );
 
                     return (
                       <button
                         key={index}
-                        onClick={() => !disabled && setSelectedDate(date)}
+                        onClick={() =>
+                          !disabled && setSelectedDate(date)
+                        }
                         disabled={disabled}
                         className={`h-12 rounded-2xl text-sm font-medium transition-all duration-300 border
                           ${
@@ -174,35 +203,59 @@ export default function BookingModal({
                   >
                     Horarios disponibles
                   </h3>
+
                   <p className="text-[var(--navy)]/75">
                     {selectedDate
-                      ? `Fecha seleccionada: ${formatSelectedDate(selectedDate)}`
+                      ? `Fecha seleccionada: ${formatSelectedDate(
+                          selectedDate
+                        )}`
                       : "Selecciona primero una fecha en el calendario"}
                   </p>
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {availableTimes.map((time) => (
-                    <button
-                      key={time}
-                      onClick={() => selectedDate && setSelectedTime(time)}
-                      disabled={!selectedDate}
-                      className={`px-4 py-3 rounded-2xl border transition-all duration-300 text-sm font-medium
-                        ${
-                          selectedTime === time
-                            ? "bg-[var(--navy)] text-white border-[var(--navy)]"
-                            : "bg-[var(--cream)] text-[var(--charcoal)] border-[var(--border)]"
+                  {availableTimes.map((time) => {
+                    const isTodaySelected =
+                      selectedDate &&
+                      selectedDate.getDate() ===
+                        now.getDate() &&
+                      selectedDate.getMonth() ===
+                        now.getMonth() &&
+                      selectedDate.getFullYear() ===
+                        now.getFullYear();
+
+                    const isPastHour =
+                      isTodaySelected &&
+                      timeMap[time] <= currentHour;
+
+                    return (
+                      <button
+                        key={time}
+                        onClick={() =>
+                          !isPastHour &&
+                          selectedDate &&
+                          setSelectedTime(time)
                         }
-                        ${
-                          !selectedDate
-                            ? "opacity-40 cursor-not-allowed"
-                            : "hover:bg-[var(--mint)] hover:text-white hover:border-[var(--mint)]"
+                        disabled={
+                          !selectedDate || isPastHour
                         }
-                      `}
-                    >
-                      {time}
-                    </button>
-                  ))}
+                        className={`px-4 py-3 rounded-2xl border transition-all duration-300 text-sm font-medium
+                          ${
+                            selectedTime === time
+                              ? "bg-[var(--navy)] text-white border-[var(--navy)]"
+                              : "bg-[var(--cream)] text-[var(--charcoal)] border-[var(--border)]"
+                          }
+                          ${
+                            !selectedDate || isPastHour
+                              ? "opacity-35 cursor-not-allowed"
+                              : "hover:bg-[var(--mint)] hover:text-white hover:border-[var(--mint)]"
+                          }
+                        `}
+                      >
+                        {time}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -214,10 +267,39 @@ export default function BookingModal({
                   </h3>
                 </div>
 
+                {bookingMessage && (
+                  <div className="mb-4 rounded-2xl border border-green-300 bg-green-100 px-4 py-3 text-sm text-green-700">
+                    {bookingMessage}
+                  </div>
+                )}
+
                 <div className="space-y-4">
-                  <input value={clientName} onChange={(e)=>setClientName(e.target.value)} placeholder="Nombre" className="w-full px-4 py-3 rounded-2xl border"/>
-                  <input value={clientLastName} onChange={(e)=>setClientLastName(e.target.value)} placeholder="Apellido" className="w-full px-4 py-3 rounded-2xl border"/>
-                  <input value={clientPhone} onChange={(e)=>setClientPhone(e.target.value)} placeholder="Teléfono" className="w-full px-4 py-3 rounded-2xl border"/>
+                  <input
+                    value={clientName}
+                    onChange={(e) =>
+                      setClientName(e.target.value)
+                    }
+                    placeholder="Nombre"
+                    className="w-full px-4 py-3 rounded-2xl border"
+                  />
+
+                  <input
+                    value={clientLastName}
+                    onChange={(e) =>
+                      setClientLastName(e.target.value)
+                    }
+                    placeholder="Apellido"
+                    className="w-full px-4 py-3 rounded-2xl border"
+                  />
+
+                  <input
+                    value={clientPhone}
+                    onChange={(e) =>
+                      setClientPhone(e.target.value)
+                    }
+                    placeholder="Teléfono"
+                    className="w-full px-4 py-3 rounded-2xl border"
+                  />
                 </div>
 
                 <button
@@ -233,4 +315,4 @@ export default function BookingModal({
       )}
     </AnimatePresence>
   );
-}   
+}

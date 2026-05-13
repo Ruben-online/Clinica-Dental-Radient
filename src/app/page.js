@@ -19,6 +19,8 @@ export default function Home() {
   const [clientLastName, setClientLastName] = useState("");
   const [clientPhone, setClientPhone] = useState("");
 
+  const [bookingMessage, setBookingMessage] = useState("");
+
   const availableTimes = [
     "08:00 AM",
     "09:00 AM",
@@ -32,14 +34,29 @@ export default function Home() {
   ];
 
   const monthNames = [
-    "Enero","Febrero","Marzo","Abril","Mayo","Junio",
-    "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre",
+    "Enero",
+    "Febrero",
+    "Marzo",
+    "Abril",
+    "Mayo",
+    "Junio",
+    "Julio",
+    "Agosto",
+    "Septiembre",
+    "Octubre",
+    "Noviembre",
+    "Diciembre",
   ];
 
   const weekDays = ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sa"];
 
   const today = new Date();
-  const todayNoTime = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+  const todayNoTime = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate()
+  );
 
   const calendarDays = useMemo(() => {
     const year = currentMonth.getFullYear();
@@ -64,6 +81,7 @@ export default function Home() {
 
   const isSameDay = (date1, date2) => {
     if (!date1 || !date2) return false;
+
     return (
       date1.getDate() === date2.getDate() &&
       date1.getMonth() === date2.getMonth() &&
@@ -73,17 +91,22 @@ export default function Home() {
 
   const isPastDate = (date) => {
     if (!date) return false;
+
     return date < todayNoTime;
   };
 
   const isSunday = (date) => {
     if (!date) return false;
+
     return date.getDay() === 0;
   };
 
   const formatSelectedDate = (date) => {
     if (!date) return "";
-    return `${date.getDate()} de ${monthNames[date.getMonth()]} de ${date.getFullYear()}`;
+
+    return `${date.getDate()} de ${
+      monthNames[date.getMonth()]
+    } de ${date.getFullYear()}`;
   };
 
   const resetBookingForm = () => {
@@ -94,29 +117,66 @@ export default function Home() {
     setClientPhone("");
   };
 
-  const handleReserve = () => {
-    if (!selectedDate || !selectedTime || !clientName || !clientLastName || !clientPhone) return;
+  const handleReserve = async () => {
+    if (
+      !selectedDate ||
+      !selectedTime ||
+      !clientName ||
+      !clientLastName ||
+      !clientPhone
+    ) {
+      return;
+    }
 
-    alert(
-      `Cita seleccionada:
-Nombre: ${clientName}
-Apellido: ${clientLastName}
-Teléfono: ${clientPhone}
-Fecha: ${formatSelectedDate(selectedDate)}
-Hora: ${selectedTime}`
-    );
+    try {
+      const res = await fetch("/api/citas", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          clientName,
+          clientLastName,
+          clientPhone,
+          date: selectedDate,
+          time: selectedTime,
+        }),
+      });
 
-    setShowBookingModal(false);
-    resetBookingForm();
+      const data = await res.json();
+
+      if (!res.ok) {
+        setBookingMessage(
+          data.error || "Error al reservar cita"
+        );
+
+        return;
+      }
+
+      setBookingMessage(
+        "Cita reservada correctamente. Nos pondremos en contacto contigo pronto."
+      );
+
+      resetBookingForm();
+    } catch (error) {
+      console.error(error);
+
+      setBookingMessage("Error del servidor");
+    }
   };
 
   return (
     <div className="min-h-screen bg-[var(--cream)] overflow-x-hidden">
       <Navbar />
+
       <Hero setShowBookingModal={setShowBookingModal} />
+
       <Services />
+
       <About />
+
       <Location />
+
       <Footer />
 
       <BookingModal
@@ -145,6 +205,7 @@ Hora: ${selectedTime}`
         resetBookingForm={resetBookingForm}
         handleReserve={handleReserve}
         todayNoTime={todayNoTime}
+        bookingMessage={bookingMessage}
       />
     </div>
   );
