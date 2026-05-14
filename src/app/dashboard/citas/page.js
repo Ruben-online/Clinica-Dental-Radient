@@ -30,6 +30,7 @@ export default function DashboardCitasPage() {
     clientName: "",
     clientLastName: "",
     clientPhone: "",
+    motivo: "", // ✅ AGREGADO
     date: null,
     time: "",
     status: "pendiente",
@@ -95,6 +96,7 @@ export default function DashboardCitasPage() {
       clientName: "",
       clientLastName: "",
       clientPhone: "",
+      motivo: "", // ✅ AGREGADO
       date: null,
       time: "",
       status: "pendiente",
@@ -116,6 +118,7 @@ export default function DashboardCitasPage() {
       clientName: cita.clientName,
       clientLastName: cita.clientLastName,
       clientPhone: cita.clientPhone,
+      motivo: cita.motivo || "", // ✅ AGREGADO
       date: new Date(cita.date),
       time: cita.time,
       status: cita.status,
@@ -168,7 +171,8 @@ export default function DashboardCitasPage() {
     <div className="space-y-10">
 
       {/* HEADER */}
-      <div className="bg-gradient-to-r from-[#f4f7fa] to-white border rounded-3xl p-7 flex justify-between items-center shadow-sm">
+      <div className="bg-gradient-to-r from-[#f4f7fa] to-white border border-black/5 rounded-3xl p-7 flex justify-between items-center shadow-sm">
+
         <div>
           <h1 className="text-3xl font-semibold text-[#1B3A5C]">
             Gestión de citas
@@ -185,6 +189,7 @@ export default function DashboardCitasPage() {
           <Plus className="w-5 h-5" />
           Nueva cita
         </button>
+
       </div>
 
       {/* SEARCH */}
@@ -231,15 +236,24 @@ export default function DashboardCitasPage() {
                 </p>
 
                 <p>
-                  <span className="font-medium">Numero de telefono:</span> {cita.clientPhone}
+                  <span className="font-medium">Numero de telefono:</span>{" "}
+                  {cita.clientPhone}
+                </p>
+
+                {/* ✅ NUEVO CAMPO */}
+                <p>
+                  <span className="font-medium">Motivo:</span>{" "}
+                  {cita.motivo || "No especificado"}
                 </p>
 
                 <p>
-                  <span className="font-medium">Fecha:</span> {cita.date}
+                  <span className="font-medium">Fecha:</span>{" "}
+                  {cita.date}
                 </p>
 
                 <p>
-                  <span className="font-medium">Hora:</span> {cita.time}
+                  <span className="font-medium">Hora:</span>{" "}
+                  {cita.time}
                 </p>
 
                 <p>
@@ -261,6 +275,7 @@ export default function DashboardCitasPage() {
 
               {/* ACCIONES */}
               <div className="flex flex-col gap-2">
+
                 <button
                   onClick={() => openEdit(cita)}
                   className="w-10 h-10 rounded-xl bg-[#f4f7fa] hover:bg-[#7AB5A0] hover:text-white"
@@ -274,6 +289,7 @@ export default function DashboardCitasPage() {
                 >
                   <Trash2 className="w-4 h-4 mx-auto" />
                 </button>
+
               </div>
 
             </div>
@@ -389,6 +405,14 @@ export default function DashboardCitasPage() {
                   onChange={(e) => setForm({ ...form, clientPhone: e.target.value })}
                   className="w-full p-3 border rounded-xl"
                   placeholder="Teléfono"
+                />
+
+                {/* ✅ NUEVO INPUT */}
+                <input
+                  value={form.motivo}
+                  onChange={(e) => setForm({ ...form, motivo: e.target.value })}
+                  className="w-full p-3 border rounded-xl"
+                  placeholder="Motivo de la cita"
                 />
 
                 <button
