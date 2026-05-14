@@ -7,9 +7,7 @@ import { usePathname } from "next/navigation";
 const navItems = [
   {
     section: "Principal",
-    items: [
-      { label: "Inicio", href: "/dashboard", icon: "grid" },
-    ],
+    items: [{ label: "Inicio", href: "/dashboard", icon: "grid" }],
   },
   {
     section: "Gestión",
@@ -23,7 +21,11 @@ const navItems = [
   {
     section: "Sistema",
     items: [
-      { label: "Configuración", href: "/dashboard/configuracion", icon: "settings" },
+      {
+        label: "Configuración",
+        href: "/dashboard/configuracion",
+        icon: "settings",
+      },
     ],
   },
 ];
@@ -63,26 +65,39 @@ const icons = {
 
 export default function DashboardLayout({ children }) {
   const pathname = usePathname();
+
   const today = new Date().toLocaleDateString("es-GT", {
-    weekday: "long", year: "numeric", month: "long", day: "numeric",
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 
   return (
     <div className="flex h-screen bg-[#f4f7fa] overflow-hidden">
-
       {/* Sidebar */}
-      <aside className="w-[300px] flex-shrink-0 flex flex-col" style={{ background: "#1B3A5C" }}>
-
+      <aside
+        className="w-[300px] flex-shrink-0 flex flex-col"
+        style={{ background: "#1B3A5C" }}
+      >
         {/* Brand */}
         <div className="px-6 py-7 border-b border-white/10 flex items-center gap-4">
-          <div className="w-13 h-13 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: "#7AB5A0", width: "52px", height: "52px" }}>
-            <svg style={{ width: "28px", height: "28px" }} className="fill-white" viewBox="0 0 24 24">
-              <path d="M12 2C8.5 2 6 4.5 6 7.5c0 2.1.8 3.8 1.5 5.2.7 1.3 1 2.8 1 4.3 0 1.4.4 3 1.5 4 .4.4.9.5 1.3.3.6-.3.7-1 .7-1.8 0-.7.5-1.4 1-1.4s1 .7 1 1.4c0 .8.1 1.5.7 1.8.4.2.9.1 1.3-.3 1.1-1 1.5-2.6 1.5-4 0-1.5.3-3 1-4.3C18.2 11.3 19 9.6 19 7.5 19 4.5 16.5 2 12 2z" />
-            </svg>
+          <div
+            className="flex items-center justify-center flex-shrink-0"
+            style={{ width: "52px", height: "52px" }}
+          >
+            <img
+              src="/Radient%20Blanco.png"
+              alt="Logo Radient"
+              className="h-full w-full object-contain"
+            />
           </div>
+
           <div>
             <p className="text-white text-lg font-medium">Radient</p>
-            <p className="text-white/40 text-sm">Todo comienza con una sonrisa</p>
+            <p className="text-white/40 text-sm">
+              Todo comienza con una sonrisa
+            </p>
           </div>
         </div>
 
@@ -93,8 +108,10 @@ export default function DashboardLayout({ children }) {
               <p className="text-xs text-white/35 uppercase tracking-widest px-2 mb-2">
                 {group.section}
               </p>
+
               {group.items.map((item) => {
                 const active = pathname === item.href;
+
                 return (
                   <Link
                     key={item.href}
@@ -118,11 +135,21 @@ export default function DashboardLayout({ children }) {
         {/* User */}
         <div className="px-4 py-4 border-t border-white/10">
           <div className="flex items-center gap-3 px-2 py-3 rounded-lg hover:bg-white/8 cursor-pointer transition-all">
-            <div className="rounded-full flex items-center justify-center text-white text-sm font-medium flex-shrink-0" style={{ background: "#7AB5A0", width: "44px", height: "44px" }}>
+            <div
+              className="rounded-full flex items-center justify-center text-white text-sm font-medium flex-shrink-0"
+              style={{
+                background: "#7AB5A0",
+                width: "44px",
+                height: "44px",
+              }}
+            >
               KE
             </div>
+
             <div>
-              <p className="text-white/85 text-base font-medium">Dra. Katya Espinoza</p>
+              <p className="text-white/85 text-base font-medium">
+                Dra. Katya Espinoza
+              </p>
               <p className="text-white/40 text-sm">Administradora</p>
             </div>
           </div>
@@ -131,21 +158,39 @@ export default function DashboardLayout({ children }) {
 
       {/* Main */}
       <div className="flex-1 flex flex-col overflow-hidden">
-
         {/* Topbar */}
         <header className="h-20 bg-white border-b border-black/8 px-8 flex items-center justify-between flex-shrink-0">
           <h1 className="text-xl font-medium" style={{ color: "#1B3A5C" }}>
             Panel de control
           </h1>
+
           <div className="flex items-center gap-4">
-            <span className="text-base text-gray-400 capitalize">{today}</span>
-            <button className="rounded-lg border border-black/8 flex items-center justify-center text-gray-400 hover:bg-gray-50 transition-all" style={{ width: "44px", height: "44px" }}>
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+            <span className="text-base text-gray-400 capitalize">
+              {today}
+            </span>
+
+            <button
+              className="rounded-lg border border-black/8 flex items-center justify-center text-gray-400 hover:bg-gray-50 transition-all"
+              style={{ width: "44px", height: "44px" }}
+            >
+              <svg
+                className="w-5 h-5"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
                 <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" />
               </svg>
             </button>
-            <button className="rounded-lg border border-black/8 flex items-center justify-center text-gray-400 hover:bg-gray-50 transition-all" style={{ width: "44px", height: "44px" }}>
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+
+            <button
+              className="rounded-lg border border-black/8 flex items-center justify-center text-gray-400 hover:bg-gray-50 transition-all"
+              style={{ width: "44px", height: "44px" }}
+            >
+              <svg
+                className="w-5 h-5"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
               </svg>
             </button>
@@ -153,9 +198,7 @@ export default function DashboardLayout({ children }) {
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto p-8">
-          {children}
-        </main>
+        <main className="flex-1 overflow-y-auto p-8">{children}</main>
       </div>
     </div>
   );
