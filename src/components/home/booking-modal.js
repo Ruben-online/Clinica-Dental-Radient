@@ -29,6 +29,8 @@ export default function BookingModal({
   isSameDay,
   isPastDate,
   isSunday,
+  isHoliday,
+  getHoliday,
   formatSelectedDate,
   resetBookingForm,
   handleReserve,
@@ -182,9 +184,13 @@ export default function BookingModal({
                       );
                     }
 
+                    const holiday =
+                      getHoliday(date);
+
                     const disabled =
                       isPastDate(date) ||
-                      isSunday(date);
+                      isSunday(date) ||
+                      isHoliday(date);
 
                     const selected = isSameDay(
                       date,
@@ -219,15 +225,32 @@ export default function BookingModal({
                           }
                         `}
                       >
-                        {date.getDate()}
+                        <div className="flex flex-col items-center justify-center leading-tight">
+                          <span>
+                            {date.getDate()}
+                          </span>
+
+                          {holiday && (
+                            <span className="text-[9px] mt-1 text-center">
+                              {holiday.name}
+                            </span>
+                          )}
+
+                          {isSunday(date) &&
+                            !holiday && (
+                              <span className="text-[9px] mt-1">
+                                Cerrado
+                              </span>
+                            )}
+                        </div>
                       </button>
                     );
                   })}
                 </div>
 
                 <p className="text-sm text-[var(--navy)]/65 mt-5">
-                  Los domingos y fechas pasadas no
-                  están disponibles.
+                  Los domingos, feriados y fechas
+                  pasadas no están disponibles.
                 </p>
               </div>
 
@@ -303,6 +326,12 @@ export default function BookingModal({
                           {occupied && (
                             <span className="text-[10px] mt-1">
                               Ocupado
+                            </span>
+                          )}
+
+                          {isPastHour && (
+                            <span className="text-[10px] mt-1">
+                              Finalizado
                             </span>
                           )}
                         </div>

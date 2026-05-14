@@ -11,23 +11,32 @@ import Footer from "@/components/layout/footer";
 import BookingModal from "@/components/home/booking-modal";
 
 export default function Home() {
-  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [showBookingModal, setShowBookingModal] =
+    useState(false);
 
-  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [currentMonth, setCurrentMonth] =
+    useState(new Date());
 
-  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedDate, setSelectedDate] =
+    useState(null);
 
-  const [selectedTime, setSelectedTime] = useState("");
+  const [selectedTime, setSelectedTime] =
+    useState("");
 
-  const [clientName, setClientName] = useState("");
+  const [clientName, setClientName] =
+    useState("");
 
-  const [clientLastName, setClientLastName] = useState("");
+  const [clientLastName, setClientLastName] =
+    useState("");
 
-  const [clientPhone, setClientPhone] = useState("");
+  const [clientPhone, setClientPhone] =
+    useState("");
 
-  const [bookingMessage, setBookingMessage] = useState("");
+  const [bookingMessage, setBookingMessage] =
+    useState("");
 
-  const [appointments, setAppointments] = useState([]);
+  const [appointments, setAppointments] =
+    useState([]);
 
   useEffect(() => {
     fetchAppointments();
@@ -60,7 +69,77 @@ export default function Home() {
     "Diciembre",
   ];
 
-  const weekDays = ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sa"];
+  const weekDays = [
+    "Do",
+    "Lu",
+    "Ma",
+    "Mi",
+    "Ju",
+    "Vi",
+    "Sa",
+  ];
+
+  const holidays = [
+  {
+    date: "2026-01-01",
+    name: "Año Nuevo",
+  },
+
+  {
+    date: "2026-04-02",
+    name: "Jueves Santo",
+  },
+
+  {
+    date: "2026-04-03",
+    name: "Viernes Santo",
+  },
+
+  {
+    date: "2026-04-04",
+    name: "Sábado Santo",
+  },
+
+  {
+    date: "2026-04-05",
+    name: "Domingo de Resurrección",
+  },
+
+  {
+    date: "2026-05-01",
+    name: "Día del Trabajo",
+  },
+
+  {
+    date: "2026-06-30",
+    name: "Día del Ejército",
+  },
+
+  {
+    date: "2026-09-15",
+    name: "Día de la Independencia",
+  },
+
+  {
+    date: "2026-10-20",
+    name: "Día de la Revolución",
+  },
+
+  {
+    date: "2026-11-01",
+    name: "Día de Todos los Santos",
+  },
+
+  {
+    date: "2026-12-25",
+    name: "Navidad",
+  },
+
+  {
+    date: "2026-12-31",
+    name: "Fin de Año",
+  },
+];
 
   const today = new Date();
 
@@ -79,7 +158,11 @@ export default function Home() {
 
     const startDay = firstDayOfMonth.getDay();
 
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInMonth = new Date(
+      year,
+      month + 1,
+      0
+    ).getDate();
 
     const days = [];
 
@@ -112,7 +195,8 @@ export default function Home() {
     return (
       date1.getDate() === date2.getDate() &&
       date1.getMonth() === date2.getMonth() &&
-      date1.getFullYear() === date2.getFullYear()
+      date1.getFullYear() ===
+        date2.getFullYear()
     );
   };
 
@@ -126,6 +210,22 @@ export default function Home() {
     if (!date) return false;
 
     return date.getDay() === 0;
+  };
+
+  const getHoliday = (date) => {
+    if (!date) return null;
+
+    const dateString = date
+      .toISOString()
+      .split("T")[0];
+
+    return holidays.find(
+      (holiday) => holiday.date === dateString
+    );
+  };
+
+  const isHoliday = (date) => {
+    return !!getHoliday(date);
   };
 
   const formatSelectedDate = (date) => {
@@ -157,7 +257,8 @@ export default function Home() {
         appointment.date.split("T")[0];
 
       return (
-        appointmentDate === selectedDateString &&
+        appointmentDate ===
+          selectedDateString &&
         appointment.time === time
       );
     });
@@ -171,7 +272,10 @@ export default function Home() {
       !clientLastName ||
       !clientPhone
     ) {
-      setBookingMessage("Completa todos los campos.");
+      setBookingMessage(
+        "Completa todos los campos."
+      );
+
       return;
     }
 
@@ -217,7 +321,9 @@ export default function Home() {
     } catch (error) {
       console.error(error);
 
-      setBookingMessage("Error del servidor.");
+      setBookingMessage(
+        "Error del servidor."
+      );
     }
   };
 
@@ -225,7 +331,11 @@ export default function Home() {
     <div className="min-h-screen bg-[var(--cream)] overflow-x-hidden">
       <Navbar />
 
-      <Hero setShowBookingModal={setShowBookingModal} />
+      <Hero
+        setShowBookingModal={
+          setShowBookingModal
+        }
+      />
 
       <Services />
 
@@ -236,8 +346,12 @@ export default function Home() {
       <Footer />
 
       <BookingModal
-        showBookingModal={showBookingModal}
-        setShowBookingModal={setShowBookingModal}
+        showBookingModal={
+          showBookingModal
+        }
+        setShowBookingModal={
+          setShowBookingModal
+        }
         currentMonth={currentMonth}
         setCurrentMonth={setCurrentMonth}
         selectedDate={selectedDate}
@@ -247,7 +361,9 @@ export default function Home() {
         clientName={clientName}
         setClientName={setClientName}
         clientLastName={clientLastName}
-        setClientLastName={setClientLastName}
+        setClientLastName={
+          setClientLastName
+        }
         clientPhone={clientPhone}
         setClientPhone={setClientPhone}
         calendarDays={calendarDays}
@@ -257,8 +373,14 @@ export default function Home() {
         isSameDay={isSameDay}
         isPastDate={isPastDate}
         isSunday={isSunday}
-        formatSelectedDate={formatSelectedDate}
-        resetBookingForm={resetBookingForm}
+        isHoliday={isHoliday}
+        getHoliday={getHoliday}
+        formatSelectedDate={
+          formatSelectedDate
+        }
+        resetBookingForm={
+          resetBookingForm
+        }
         handleReserve={handleReserve}
         todayNoTime={todayNoTime}
         bookingMessage={bookingMessage}
