@@ -161,15 +161,14 @@ export default function DashboardCitasPage() {
     );
   });
 
-  const getInitials = (name, last) => {
-    return `${name?.[0] || ""}${last?.[0] || ""}`.toUpperCase();
-  };
+  const getInitials = (name, last) =>
+    `${name?.[0] || ""}${last?.[0] || ""}`.toUpperCase();
 
   return (
     <div className="space-y-10">
 
       {/* HEADER */}
-      <div className="bg-gradient-to-r from-[#f4f7fa] to-white border border-black/5 rounded-3xl p-7 flex justify-between items-center shadow-sm">
+      <div className="bg-gradient-to-r from-[#f4f7fa] to-white border rounded-3xl p-7 flex justify-between items-center shadow-sm">
         <div>
           <h1 className="text-3xl font-semibold text-[#1B3A5C]">
             Gestión de citas
@@ -181,7 +180,7 @@ export default function DashboardCitasPage() {
 
         <button
           onClick={openCreate}
-          className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#7AB5A0] text-white shadow-md"
+          className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#7AB5A0] text-white"
         >
           <Plus className="w-5 h-5" />
           Nueva cita
@@ -189,7 +188,7 @@ export default function DashboardCitasPage() {
       </div>
 
       {/* SEARCH */}
-      <div className="bg-white border rounded-3xl p-5 shadow-sm">
+      <div className="bg-white border rounded-3xl p-5">
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -203,7 +202,7 @@ export default function DashboardCitasPage() {
         Pacientes agendados
       </div>
 
-      {/* LISTA VERTICAL */}
+      {/* LISTA */}
       <div className="space-y-4">
 
         {loading ? (
@@ -219,31 +218,28 @@ export default function DashboardCitasPage() {
               className="flex gap-4 p-6 bg-white border rounded-3xl hover:shadow-md transition"
             >
 
-              {/* AVATAR INICIALES */}
+              {/* AVATAR */}
               <div className="w-14 h-14 rounded-2xl bg-[#1B3A5C] text-white flex items-center justify-center font-semibold text-sm shadow-sm">
                 {getInitials(cita.clientName, cita.clientLastName)}
               </div>
 
-              {/* INFO VERTICAL */}
-              <div className="flex-1 space-y-1 text-sm text-gray-700">
+              {/* INFO */}
+              <div className="flex-1 text-sm text-gray-700 space-y-1">
 
                 <p className="font-semibold text-[#1B3A5C] text-lg">
                   {cita.clientName} {cita.clientLastName}
                 </p>
 
                 <p>
-                  <span className="font-medium">Numero de telefono:</span>{" "}
-                  {cita.clientPhone}
+                  <span className="font-medium">Numero de telefono:</span> {cita.clientPhone}
                 </p>
 
                 <p>
-                  <span className="font-medium">Fecha:</span>{" "}
-                  {cita.date}
+                  <span className="font-medium">Fecha:</span> {cita.date}
                 </p>
 
                 <p>
-                  <span className="font-medium">Hora:</span>{" "}
-                  {cita.time}
+                  <span className="font-medium">Hora:</span> {cita.time}
                 </p>
 
                 <p>
@@ -283,18 +279,128 @@ export default function DashboardCitasPage() {
             </div>
           ))
         )}
-
       </div>
 
-      {/* MODAL (SIN CAMBIOS) */}
+      {/* MODAL COMPLETO RESTAURADO */}
       {modalOpen && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4">
-          <div className="bg-white w-full max-w-6xl rounded-3xl p-6">
-            <button onClick={() => setModalOpen(false)}>
-              <X />
-            </button>
 
-            {/* (lo dejo intacto como lo tienes) */}
+          <div className="bg-white w-full max-w-6xl rounded-3xl shadow-2xl overflow-hidden">
+
+            <div className="flex justify-between items-center px-7 py-5 border-b bg-gradient-to-r from-[#f4f7fa] to-white">
+              <div>
+                <h2 className="text-2xl font-semibold text-[#1B3A5C]">
+                  {editMode ? "Editar cita" : "Nueva cita"}
+                </h2>
+              </div>
+
+              <button onClick={() => setModalOpen(false)}>
+                <X />
+              </button>
+            </div>
+
+            <div className="grid lg:grid-cols-3">
+
+              {/* CALENDARIO */}
+              <div className="p-7 bg-[#f9fbfc] border-r">
+                <div className="flex justify-between items-center mb-5">
+                  <button onClick={() =>
+                    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))
+                  }>
+                    <ChevronLeft />
+                  </button>
+
+                  <h3 className="font-semibold text-[#1B3A5C]">
+                    {monthNames[currentMonth.getMonth()]}
+                  </h3>
+
+                  <button onClick={() =>
+                    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))
+                  }>
+                    <ChevronRight />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-7 gap-2">
+                  {calendarDays.map((d, i) => {
+                    if (!d) return <div key={i} />;
+
+                    const selected = form.date &&
+                      isSameDay(d, form.date);
+
+                    return (
+                      <button
+                        key={i}
+                        onClick={() => setForm({ ...form, date: d })}
+                        className={`h-12 rounded-xl border text-sm ${
+                          selected ? "bg-[#7AB5A0] text-white" : ""
+                        }`}
+                      >
+                        {d.getDate()}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* HORARIOS */}
+              <div className="p-7 border-r">
+                <h3 className="font-semibold text-[#1B3A5C] mb-4">
+                  Horarios
+                </h3>
+
+                <div className="grid grid-cols-2 gap-3">
+                  {availableTimes.map(time => (
+                    <button
+                      key={time}
+                      disabled={isOccupied(time)}
+                      onClick={() => setForm({ ...form, time })}
+                      className="p-3 border rounded-xl"
+                    >
+                      {time}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* FORM */}
+              <div className="p-7 space-y-5">
+
+                <h3 className="font-semibold text-[#1B3A5C]">
+                  Datos del paciente
+                </h3>
+
+                <input
+                  value={form.clientName}
+                  onChange={(e) => setForm({ ...form, clientName: e.target.value })}
+                  className="w-full p-3 border rounded-xl"
+                  placeholder="Nombre"
+                />
+
+                <input
+                  value={form.clientLastName}
+                  onChange={(e) => setForm({ ...form, clientLastName: e.target.value })}
+                  className="w-full p-3 border rounded-xl"
+                  placeholder="Apellido"
+                />
+
+                <input
+                  value={form.clientPhone}
+                  onChange={(e) => setForm({ ...form, clientPhone: e.target.value })}
+                  className="w-full p-3 border rounded-xl"
+                  placeholder="Teléfono"
+                />
+
+                <button
+                  onClick={save}
+                  className="w-full bg-[#7AB5A0] text-white py-3 rounded-2xl"
+                >
+                  {editMode ? "Actualizar cita" : "Crear cita"}
+                </button>
+
+              </div>
+
+            </div>
           </div>
         </div>
       )}
