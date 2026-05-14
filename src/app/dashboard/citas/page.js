@@ -61,11 +61,14 @@ export default function DashboardCitasPage() {
 
   const weekDays = ["D", "L", "M", "M", "J", "V", "S"];
 
+  const cargarCitas = async () => {
+    const res = await fetch("/api/citas");
+    const data = await res.json();
+    setCitas(data);
+  };
+
   useEffect(() => {
-    fetch("/api/citas")
-      .then((r) => r.json())
-      .then(setCitas)
-      .finally(() => setLoading(false));
+    cargarCitas().finally(() => setLoading(false));
   }, []);
 
   const formatDateKey = (date) =>
@@ -86,7 +89,6 @@ export default function DashboardCitasPage() {
     if (!form.date) return false;
 
     const today = new Date();
-
     const selectedDate = new Date(form.date);
 
     const isToday =
@@ -123,10 +125,7 @@ export default function DashboardCitasPage() {
 
     if (selected.hours < nowHours) return true;
 
-    if (
-      selected.hours === nowHours &&
-      selected.minutes <= nowMinutes
-    ) {
+    if (selected.hours === nowHours && selected.minutes <= nowMinutes) {
       return true;
     }
 
@@ -199,7 +198,7 @@ export default function DashboardCitasPage() {
       motivo: cita.motivo || "",
       date: new Date(cita.date),
       time: cita.time,
-      status: cita.status,
+      status: cita.status || "pendiente",
     });
 
     setModalOpen(true);
@@ -232,14 +231,40 @@ export default function DashboardCitasPage() {
     setModalOpen(false);
     resetForm();
 
-    const res = await fetch("/api/citas");
-    setCitas(await res.json());
+    await cargarCitas();
+  };
+
+  const updateCitaStatus = async (cita, newStatus) => {
+    const payload = {
+      clientName: cita.clientName,
+      clientLastName: cita.clientLastName,
+      clientPhone: cita.clientPhone,
+      motivo: cita.motivo || "",
+      date: cita.date?.split("T")[0] || cita.date,
+      time: cita.time,
+      status: newStatus,
+    };
+
+    const response = await fetch(`/api/citas/${cita._id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.error || "No se pudo actualizar el estado de la cita");
+      return;
+    }
+
+    await cargarCitas();
   };
 
   const deleteCita = async (id) => {
-    const confirmDelete = confirm(
-      "¿Seguro que deseas eliminar esta cita?"
-    );
+    const confirmDelete = confirm("¿Seguro que deseas eliminar esta cita?");
 
     if (!confirmDelete) return;
 
@@ -256,12 +281,10 @@ export default function DashboardCitasPage() {
   };
 
   const filteredCitas = citas.filter((c) => {
-    const full =
-      `${c.clientName} ${c.clientLastName}`.toLowerCase();
+    const full = `${c.clientName} ${c.clientLastName}`.toLowerCase();
 
     return (
-      full.includes(search.toLowerCase()) ||
-      c.clientPhone?.includes(search)
+      full.includes(search.toLowerCase()) || c.clientPhone?.includes(search)
     );
   });
 
@@ -317,10 +340,7 @@ export default function DashboardCitasPage() {
               className="flex gap-4 p-6 bg-white border rounded-3xl hover:shadow-md transition"
             >
               <div className="w-14 h-14 rounded-2xl bg-[#1B3A5C] text-white flex items-center justify-center font-semibold text-sm shadow-sm">
-                {getInitials(
-                  cita.clientName,
-                  cita.clientLastName
-                )}
+                {getInitials(cita.clientName, cita.clientLastName)}
               </div>
 
               <div className="flex-1 text-sm text-gray-700 space-y-1">
@@ -329,9 +349,7 @@ export default function DashboardCitasPage() {
                 </p>
 
                 <p>
-                  <span className="font-medium">
-                    Numero de telefono:
-                  </span>{" "}
+                  <span className="font-medium">Numero de telefono:</span>{" "}
                   {cita.clientPhone}
                 </p>
 
@@ -341,20 +359,20 @@ export default function DashboardCitasPage() {
                 </p>
 
                 <p>
-                  <span className="font-medium">Fecha:</span>{" "}
-                  {cita.date}
+                  <span className="font-medium">Fecha:</span> {cita.date}
                 </p>
 
                 <p>
-                  <span className="font-medium">Hora:</span>{" "}
-                  {cita.time}
+                  <span className="font-medium">Hora:</span> {cita.time}
                 </p>
 
                 <p>
                   <span className="font-medium">Estado:</span>{" "}
                   <span
-                    className={`px-3 py-1 rounded-full text-xs border ${
-                      cita.status === "confirmada"
+                    className={`px-3 py-1 rounded-full text-xs border capitalize ${
+                      cita.status === "atendida"
+                        ? "bg-[#7AB5A0]/15 text-[#1B3A5C] border-[#7AB5A0]/30"
+                        : cita.status === "confirmada"
                         ? "bg-green-50 text-green-600 border-green-200"
                         : cita.status === "cancelada"
                         ? "bg-red-50 text-red-500 border-red-200"
@@ -367,6 +385,33 @@ export default function DashboardCitasPage() {
               </div>
 
               <div className="flex flex-col gap-2">
+                {(!cita.status || cita.status === "pendiente") && (
+                  <button
+                    onClick={() => updateCitaStatus(cita, "confirmada")}
+                    className="rounded-xl bg-[#7AB5A0]/15 px-3 py-2 text-xs font-semibold text-[#1B3A5C] transition hover:bg-[#7AB5A0] hover:text-white"
+                  >
+                    Confirmar
+                  </button>
+                )}
+
+                {cita.status === "confirmada" && (
+                  <>
+                    <button
+                      onClick={() => updateCitaStatus(cita, "atendida")}
+                      className="rounded-xl bg-[#1B3A5C] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#7AB5A0]"
+                    >
+                      Atendida
+                    </button>
+
+                    <button
+                      onClick={() => updateCitaStatus(cita, "cancelada")}
+                      className="rounded-xl bg-red-50 px-3 py-2 text-xs font-semibold text-red-500 transition hover:bg-red-500 hover:text-white"
+                    >
+                      Cancelar
+                    </button>
+                  </>
+                )}
+
                 <button
                   onClick={() => openEdit(cita)}
                   className="w-10 h-10 rounded-xl bg-[#f4f7fa] hover:bg-[#7AB5A0] hover:text-white"
@@ -451,9 +496,7 @@ export default function DashboardCitasPage() {
                   {calendarDays.map((d, i) => {
                     if (!d) return <div key={i} />;
 
-                    const selected =
-                      form.date && isSameDay(d, form.date);
-
+                    const selected = form.date && isSameDay(d, form.date);
                     const sunday = isSunday(d);
 
                     return (
@@ -570,13 +613,35 @@ export default function DashboardCitasPage() {
                   placeholder="Motivo de la cita"
                 />
 
+                {editMode && (
+                  <div>
+                    <label className="mb-2 block text-sm font-semibold text-[#1B3A5C]">
+                      Estado de la cita
+                    </label>
+
+                    <select
+                      value={form.status}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          status: e.target.value,
+                        })
+                      }
+                      className="w-full p-3 border rounded-xl text-[#1B3A5C] outline-none"
+                    >
+                      <option value="pendiente">Pendiente</option>
+                      <option value="confirmada">Confirmada</option>
+                      <option value="atendida">Atendida</option>
+                      <option value="cancelada">Cancelada</option>
+                    </select>
+                  </div>
+                )}
+
                 <button
                   onClick={save}
                   className="w-full bg-[#7AB5A0] text-white py-3 rounded-2xl"
                 >
-                  {editMode
-                    ? "Actualizar cita"
-                    : "Crear cita"}
+                  {editMode ? "Actualizar cita" : "Crear cita"}
                 </button>
               </div>
             </div>
