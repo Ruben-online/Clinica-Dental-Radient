@@ -35,19 +35,26 @@ function fechaLarga(valor) {
   });
 }
 
+/* =========================
+   DATOS DE CITAS
+========================= */
+
 function obtenerNombrePaciente(cita) {
   const nombre =
+    cita.clientName ||
     cita.nombre ||
     cita.nombrePaciente ||
     cita.name ||
-    cita.paciente ||
+    cita.pacienteNombre ||
     "";
 
   const apellido =
+    cita.clientLastName ||
     cita.apellido ||
     cita.apellidos ||
     cita.apellidoPaciente ||
     cita.lastname ||
+    cita.pacienteApellido ||
     "";
 
   const completo = `${nombre} ${apellido}`.trim();
@@ -57,6 +64,7 @@ function obtenerNombrePaciente(cita) {
 
 function obtenerTelefono(cita) {
   return (
+    cita.clientPhone ||
     cita.telefono ||
     cita.phone ||
     cita.celular ||
@@ -66,22 +74,26 @@ function obtenerTelefono(cita) {
 }
 
 function obtenerFechaCita(cita) {
-  return (
-    cita.fecha ||
-    cita.fechaCita ||
-    cita.date ||
-    cita.dia ||
-    cita.createdAt ||
-    ""
-  );
+  return cita.date || cita.fecha || cita.fechaCita || cita.dia || cita.createdAt || "";
 }
 
 function obtenerHoraCita(cita) {
-  return cita.hora || cita.horaCita || cita.time || cita.horario || "Sin hora";
+  return cita.time || cita.hora || cita.horaCita || cita.horario || "Sin hora";
+}
+
+function obtenerMotivoCita(cita) {
+  return (
+    cita.motivo ||
+    cita.motivoConsulta ||
+    cita.descripcion ||
+    cita.servicio ||
+    cita.tratamiento ||
+    "Consulta dental"
+  );
 }
 
 function obtenerEstadoCita(cita) {
-  const estado = String(cita.estado || cita.status || "pendiente")
+  const estado = String(cita.status || cita.estado || "pendiente")
     .toLowerCase()
     .trim();
 
@@ -205,9 +217,14 @@ function normalizarCita(cita) {
     fecha: fechaLarga(obtenerFechaCita(cita)),
     fechaISO: fechaISO(obtenerFechaCita(cita)),
     hora: obtenerHoraCita(cita),
+    motivo: obtenerMotivoCita(cita),
     estado: obtenerEstadoCita(cita),
   };
 }
+
+/* =========================
+   DATOS DE INVENTARIO
+========================= */
 
 function normalizarInsumo(insumo) {
   return {
@@ -240,7 +257,9 @@ function diasParaVencer(fecha) {
 
 async function obtenerDocumentos(db, posiblesNombres) {
   const colecciones = await db.listCollections({}, { nameOnly: true }).toArray();
-  const nombresExistentes = new Set(colecciones.map((coleccion) => coleccion.name));
+  const nombresExistentes = new Set(
+    colecciones.map((coleccion) => coleccion.name)
+  );
 
   const nombreColeccion =
     posiblesNombres.find((nombre) => nombresExistentes.has(nombre)) ||
@@ -253,6 +272,10 @@ async function obtenerDocumentos(db, posiblesNombres) {
     documentos,
   };
 }
+
+/* =========================
+   GET → Reporte semanal
+========================= */
 
 export async function GET(request) {
   try {
@@ -305,15 +328,19 @@ export async function GET(request) {
     const citasPorDia = sumarPorDia(citasSemana);
 
     const totalCitas = citasSemana.length;
+
     const citasAtendidas = citasSemana.filter(
       (cita) => obtenerEstadoCita(cita) === "atendida"
     ).length;
+
     const citasCanceladas = citasSemana.filter(
       (cita) => obtenerEstadoCita(cita) === "cancelada"
     ).length;
+
     const citasPendientes = citasSemana.filter(
       (cita) => obtenerEstadoCita(cita) === "pendiente"
     ).length;
+
     const citasConfirmadas = citasSemana.filter(
       (cita) => obtenerEstadoCita(cita) === "confirmada"
     ).length;
