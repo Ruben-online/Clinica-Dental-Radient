@@ -1,5 +1,8 @@
 import { connectDB } from "@/lib/mongodb";
 
+/* =========================
+   POST → Crear cita
+========================= */
 export async function POST(req) {
   try {
     const {
@@ -8,24 +11,16 @@ export async function POST(req) {
       clientPhone,
       date,
       time,
-      reason, // 🆕 motivo de la cita
+      motivo, // 👈 NUEVO CAMPO
     } = await req.json();
 
     const db = await connectDB();
 
-    // 🔒 Normalizar fecha para evitar duplicados raros
-    const normalizedDate =
-      typeof date === "string"
-        ? date.split("T")[0]
-        : date;
-
-    // ❌ Validar si ya existe cita en ese horario
-    const existingAppointment = await db
-      .collection("citas")
-      .findOne({
-        date: normalizedDate,
-        time,
-      });
+    // Validar si ya existe una cita en ese horario
+    const existingAppointment = await db.collection("citas").findOne({
+      date,
+      time,
+    });
 
     if (existingAppointment) {
       return Response.json(
@@ -34,14 +29,13 @@ export async function POST(req) {
       );
     }
 
-    // 🧠 Documento final de cita
     const newAppointment = {
       clientName,
       clientLastName,
       clientPhone,
-      reason: reason || "", // 🆕 motivo opcional
-      date: normalizedDate,
+      date,
       time,
+      motivo: motivo || "", // 👈 NUEVO CAMPO
       status: "pendiente",
       createdAt: new Date(),
     };
@@ -50,9 +44,7 @@ export async function POST(req) {
 
     return Response.json({
       success: true,
-      message: "Cita creada correctamente",
     });
-
   } catch (error) {
     console.error(error);
 
@@ -63,6 +55,9 @@ export async function POST(req) {
   }
 }
 
+/* =========================
+   GET → Obtener citas
+========================= */
 export async function GET() {
   try {
     const db = await connectDB();
@@ -74,7 +69,6 @@ export async function GET() {
       .toArray();
 
     return Response.json(appointments);
-
   } catch (error) {
     console.error(error);
 
