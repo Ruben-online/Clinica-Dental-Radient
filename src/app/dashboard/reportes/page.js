@@ -14,6 +14,10 @@ import {
   Loader2,
   Boxes,
   TrendingUp,
+  Wallet,
+  HandCoins,
+  UsersRound,
+  Phone,
 } from "lucide-react";
 
 function formatoInputFecha(fecha) {
@@ -39,6 +43,11 @@ function obtenerSemanaActual() {
     inicio: formatoInputFecha(lunes),
     fin: formatoInputFecha(domingo),
   };
+}
+
+function formatearMoneda(valor) {
+  const numero = Number(valor || 0);
+  return `Q ${numero.toFixed(2)}`;
 }
 
 function CardReporte({ titulo, valor, subtitulo, icono, alerta = false }) {
@@ -81,8 +90,33 @@ export default function ReportesPage() {
   const [inicio, setInicio] = useState(semana.inicio);
   const [fin, setFin] = useState(semana.fin);
   const [loading, setLoading] = useState(true);
+  const [loadingEconomico, setLoadingEconomico] = useState(false);
   const [reporte, setReporte] = useState(null);
+  const [reporteEconomico, setReporteEconomico] = useState(null);
   const [error, setError] = useState("");
+
+  const cargarReporteEconomico = async () => {
+    try {
+      setLoadingEconomico(true);
+
+      const response = await fetch(
+        `/api/reportes/economico?desde=${inicio}&hasta=${fin}`
+      );
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || "No se pudo cargar el reporte económico");
+      }
+
+      setReporteEconomico(data);
+    } catch (error) {
+      console.error(error);
+      setReporteEconomico(null);
+    } finally {
+      setLoadingEconomico(false);
+    }
+  };
 
   const cargarReporte = async () => {
     try {
@@ -100,9 +134,12 @@ export default function ReportesPage() {
       }
 
       setReporte(data);
+
+      await cargarReporteEconomico();
     } catch (error) {
       console.error(error);
       setReporte(null);
+      setReporteEconomico(null);
       setError(error.message || "Error al cargar el reporte semanal");
     } finally {
       setLoading(false);
@@ -174,10 +211,10 @@ export default function ReportesPage() {
               <button
                 type="button"
                 onClick={cargarReporte}
-                disabled={loading}
+                disabled={loading || loadingEconomico}
                 className="flex w-full max-w-[280px] items-center justify-center gap-2 rounded-xl bg-[#7AB5A0] px-5 py-3 text-sm font-semibold text-white transition-all hover:bg-[#1B3A5C] disabled:cursor-not-allowed disabled:opacity-70"
               >
-                {loading ? (
+                {loading || loadingEconomico ? (
                   <>
                     <Loader2 className="h-5 w-5 animate-spin" />
                     Cargando...
@@ -284,6 +321,182 @@ export default function ReportesPage() {
               alerta={reporte.resumen.proximosAVencer > 0}
               icono={<TrendingUp className="h-7 w-7" />}
             />
+          </div>
+
+          {/* REPORTE ECONÓMICO */}
+
+          <div className="rounded-3xl border border-black/5 bg-white p-6 shadow-sm">
+            <div className="mb-5 flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#1B3A5C] text-white">
+                <Wallet className="h-6 w-6" />
+              </div>
+
+              <div>
+                <h2 className="text-xl font-semibold text-[#1B3A5C]">
+                  Reporte económico
+                </h2>
+
+                <p className="text-sm text-gray-400">
+                  Ingresos previstos, recibidos y pendientes del rango
+                  seleccionado
+                </p>
+              </div>
+            </div>
+
+            {!reporteEconomico ? (
+              <p className="rounded-2xl bg-[#f4f7fa] px-4 py-4 text-sm font-semibold text-[#1B3A5C]">
+                No se pudo cargar el reporte económico.
+              </p>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
+                  <CardReporte
+                    titulo="Dinero previsto"
+                    valor={formatearMoneda(
+                      reporteEconomico.resumenEconomico?.dineroPrevisto
+                    )}
+                    subtitulo="Suma de montos asignados a citas atendidas"
+                    icono={<TrendingUp className="h-7 w-7" />}
+                  />
+
+                  <CardReporte
+                    titulo="Dinero recibido"
+                    valor={formatearMoneda(
+                      reporteEconomico.resumenEconomico?.dineroRecibido
+                    )}
+                    subtitulo="Pagos recibidos y abonos registrados"
+                    icono={<HandCoins className="h-7 w-7" />}
+                  />
+
+                  <CardReporte
+                    titulo="Dinero pendiente"
+                    valor={formatearMoneda(
+                      reporteEconomico.resumenEconomico?.dineroPendiente
+                    )}
+                    subtitulo="Total que falta por abonar"
+                    alerta={
+                      Number(
+                        reporteEconomico.resumenEconomico?.dineroPendiente || 0
+                      ) > 0
+                    }
+                    icono={<AlertTriangle className="h-7 w-7" />}
+                  />
+
+                  <CardReporte
+                    titulo="Citas con pendiente"
+                    valor={
+                      reporteEconomico.resumenEconomico
+                        ?.totalCitasConPendiente || 0
+                    }
+                    subtitulo="Pacientes que aún deben abonar"
+                    alerta={
+                      Number(
+                        reporteEconomico.resumenEconomico
+                          ?.totalCitasConPendiente || 0
+                      ) > 0
+                    }
+                    icono={<UsersRound className="h-7 w-7" />}
+                  />
+                </div>
+
+                <div className="mt-6 overflow-hidden rounded-3xl border border-black/5 bg-white shadow-sm">
+                  <div className="border-b border-black/5 bg-[#f4f7fa] px-6 py-5">
+                    <h2 className="text-xl font-semibold text-[#1B3A5C]">
+                      Pacientes con saldo pendiente
+                    </h2>
+
+                    <p className="text-sm text-gray-400">
+                      Personas que tienen monto pendiente de pago
+                    </p>
+                  </div>
+
+                  {reporteEconomico.pacientesPendientes.length === 0 ? (
+                    <div className="py-12 text-center">
+                      <CheckCircle className="mx-auto mb-4 h-12 w-12 text-[#7AB5A0]" />
+
+                      <h3 className="text-lg font-semibold text-[#1B3A5C]">
+                        No hay saldos pendientes
+                      </h3>
+
+                      <p className="mt-2 text-sm text-gray-400">
+                        Todos los pacientes atendidos en este periodo han
+                        cancelado su pago.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full min-w-[950px]">
+                        <thead className="border-b border-black/5">
+                          <tr>
+                            <th className="px-6 py-4 text-left text-[#1B3A5C]">
+                              Paciente
+                            </th>
+                            <th className="px-6 py-4 text-left text-[#1B3A5C]">
+                              Teléfono
+                            </th>
+                            <th className="px-6 py-4 text-left text-[#1B3A5C]">
+                              Fecha
+                            </th>
+                            <th className="px-6 py-4 text-left text-[#1B3A5C]">
+                              Motivo
+                            </th>
+                            <th className="px-6 py-4 text-left text-[#1B3A5C]">
+                              Cobro
+                            </th>
+                            <th className="px-6 py-4 text-left text-[#1B3A5C]">
+                              Pagado
+                            </th>
+                            <th className="px-6 py-4 text-left text-[#1B3A5C]">
+                              Pendiente
+                            </th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          {reporteEconomico.pacientesPendientes.map((item) => (
+                            <tr
+                              key={item.citaId}
+                              className="border-b border-black/5 transition-all hover:bg-[#f9fbfc]"
+                            >
+                              <td className="px-6 py-4 font-semibold text-[#1B3A5C]">
+                                {item.paciente}
+                              </td>
+
+                              <td className="px-6 py-4 text-gray-500">
+                                <div className="flex items-center gap-2">
+                                  <Phone className="h-4 w-4 text-[#7AB5A0]" />
+                                  {item.telefono}
+                                </div>
+                              </td>
+
+                              <td className="px-6 py-4 text-gray-500">
+                                {item.fecha} {item.hora}
+                              </td>
+
+                              <td className="px-6 py-4 text-gray-500">
+                                {item.motivo}
+                              </td>
+
+                              <td className="px-6 py-4 font-semibold text-[#1B3A5C]">
+                                {formatearMoneda(item.montoCobrar)}
+                              </td>
+
+                              <td className="px-6 py-4 font-semibold text-[#1B3A5C]">
+                                {formatearMoneda(item.montoPagado)}
+                              </td>
+
+                              <td className="px-6 py-4 font-semibold text-red-500">
+                                {formatearMoneda(item.saldoPendiente)}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
           </div>
 
           {/* ALERTAS Y RECOMENDACIONES */}
