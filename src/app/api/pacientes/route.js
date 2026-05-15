@@ -1,9 +1,5 @@
 import { connectDB } from "@/lib/mongodb";
 
-/* =========================
-   FUNCIONES AUXILIARES
-========================= */
-
 function normalizarTexto(valor) {
   return String(valor || "")
     .trim()
@@ -148,10 +144,6 @@ function ordenarHistorial(historial = []) {
   });
 }
 
-/* =========================
-   GET → Obtener pacientes desde citas
-========================= */
-
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
@@ -204,6 +196,15 @@ export async function GET(req) {
         status: obtenerEstado(cita.status || cita.estado),
         createdAt: formatearFecha(cita.createdAt),
         fechaOrden: obtenerFechaOrden(cita),
+
+        detalleAtencion: cita.atencion?.detalleAtencion || "",
+        montoCobrar: Number(cita.atencion?.montoCobrar || 0),
+        montoPagado: Number(cita.atencion?.montoPagado || 0),
+        saldoPendiente: Number(cita.atencion?.saldoPendiente || 0),
+        metodoPago: cita.atencion?.metodoPago || "",
+        insumosUsados: Array.isArray(cita.atencion?.insumosUsados)
+          ? cita.atencion.insumosUsados
+          : [],
       });
     });
 

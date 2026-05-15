@@ -15,6 +15,11 @@ import {
   X,
   Stethoscope,
   History,
+  Package,
+  CreditCard,
+  Wallet,
+  DollarSign,
+  ReceiptText,
 } from "lucide-react";
 
 function CardResumen({ titulo, valor, subtitulo, icono }) {
@@ -40,6 +45,47 @@ function CardResumen({ titulo, valor, subtitulo, icono }) {
         </div>
       </div>
     </div>
+  );
+}
+
+function formatearMoneda(valor) {
+  const numero = Number(valor || 0);
+  return `Q ${numero.toFixed(2)}`;
+}
+
+function obtenerHistorial(paciente) {
+  if (Array.isArray(paciente?.historialClinico)) {
+    return paciente.historialClinico;
+  }
+
+  if (Array.isArray(paciente?.historial)) {
+    return paciente.historial;
+  }
+
+  return [];
+}
+
+function obtenerFechaHistorial(item) {
+  return item.dateFormatted || item.fecha || item.date || "Sin fecha";
+}
+
+function obtenerHoraHistorial(item) {
+  return item.time || item.hora || "Sin hora";
+}
+
+function obtenerEstadoHistorial(item) {
+  return item.status || item.estado || "pendiente";
+}
+
+function obtenerMotivoHistorial(item) {
+  return item.motivo || "No especificado";
+}
+
+function obtenerNombrePaciente(paciente) {
+  return (
+    paciente?.nombreCompleto ||
+    `${paciente?.clientName || ""} ${paciente?.clientLastName || ""}`.trim() ||
+    "Paciente sin nombre"
   );
 }
 
@@ -113,10 +159,11 @@ export default function PacientesPage() {
     setPacienteSeleccionado(null);
   };
 
+  const historialSeleccionado = obtenerHistorial(pacienteSeleccionado);
+
   return (
     <div className="min-h-screen space-y-8 pb-10">
       {/* HEADER */}
-
       <div className="relative overflow-hidden rounded-[2rem] border border-black/5 bg-white p-6 shadow-sm sm:p-7">
         <div className="absolute right-0 top-0 h-72 w-72 translate-x-24 -translate-y-28 rounded-full bg-[#7AB5A0]/15 blur-3xl" />
         <div className="absolute bottom-0 left-0 h-40 w-40 -translate-x-16 translate-y-16 rounded-full bg-[#1B3A5C]/5 blur-2xl" />
@@ -181,7 +228,6 @@ export default function PacientesPage() {
       </div>
 
       {/* ERROR */}
-
       {error && (
         <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-semibold text-red-600 shadow-sm">
           {error}
@@ -189,7 +235,6 @@ export default function PacientesPage() {
       )}
 
       {/* CARDS */}
-
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
         <CardResumen
           titulo="Pacientes registrados"
@@ -221,7 +266,6 @@ export default function PacientesPage() {
       </div>
 
       {/* TABLA */}
-
       <div className="overflow-hidden rounded-3xl border border-black/5 bg-white shadow-sm">
         {loading ? (
           <div className="flex items-center justify-center py-20">
@@ -277,7 +321,7 @@ export default function PacientesPage() {
                   >
                     <td className="px-6 py-5">
                       <h3 className="font-semibold text-[#1B3A5C]">
-                        {paciente.nombreCompleto}
+                        {obtenerNombrePaciente(paciente)}
                       </h3>
 
                       <p className="text-sm text-gray-400">
@@ -288,28 +332,28 @@ export default function PacientesPage() {
                     <td className="px-6 py-5">
                       <div className="flex items-center gap-2 text-[#1B3A5C]">
                         <Phone className="h-4 w-4 text-[#7AB5A0]" />
-                        {paciente.clientPhone}
+                        {paciente.clientPhone || "Sin teléfono"}
                       </div>
                     </td>
 
                     <td className="px-6 py-5 font-semibold text-[#1B3A5C]">
-                      {paciente.totalCitas}
+                      {paciente.totalCitas || obtenerHistorial(paciente).length}
                     </td>
 
                     <td className="px-6 py-5">
                       <span className="rounded-full bg-[#7AB5A0]/15 px-3 py-1 text-sm font-semibold text-[#1B3A5C]">
-                        {paciente.citasAtendidas}
+                        {paciente.citasAtendidas || 0}
                       </span>
                     </td>
 
                     <td className="px-6 py-5">
                       <span className="rounded-full bg-[#f4f7fa] px-3 py-1 text-sm font-semibold text-[#1B3A5C]">
-                        {paciente.citasPendientes}
+                        {paciente.citasPendientes || 0}
                       </span>
                     </td>
 
                     <td className="px-6 py-5 text-gray-500">
-                      {paciente.ultimaCita}
+                      {paciente.ultimaCita || "Sin registro"}
                     </td>
 
                     <td className="px-6 py-5">
@@ -333,41 +377,89 @@ export default function PacientesPage() {
       </div>
 
       {/* MODAL HISTORIAL */}
-
       {pacienteSeleccionado && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 px-3 py-3 backdrop-blur-sm">
-          <div className="flex max-h-[88dvh] w-full max-w-3xl flex-col overflow-hidden rounded-3xl border border-black/5 bg-white shadow-2xl">
-            <div className="relative shrink-0 border-b border-black/5 bg-[#f4f7fa] px-5 py-4">
-              <div className="absolute right-0 top-0 h-28 w-28 translate-x-10 -translate-y-12 rounded-full bg-[#7AB5A0]/20 blur-2xl" />
-
-              <div className="relative z-10 flex items-start justify-between gap-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 py-6 backdrop-blur-sm">
+          <div
+            className="flex w-full max-w-[780px] flex-col overflow-hidden rounded-[36px] bg-white shadow-2xl"
+            style={{
+              maxHeight: "660px",
+              height: "auto",
+            }}
+          >
+            {/* HEADER */}
+            <div className="shrink-0 border-b border-black/5 bg-gradient-to-r from-[#f4f7fa] to-white px-5 py-4">
+              <div className="flex items-start justify-between gap-4">
                 <div>
-                  <span className="inline-flex rounded-full bg-[#7AB5A0]/15 px-3 py-1 text-xs font-semibold text-[#1B3A5C]">
+                  <span className="inline-flex items-center gap-2 rounded-full bg-[#7AB5A0]/15 px-3 py-1 text-xs font-semibold text-[#1B3A5C]">
+                    <History className="h-4 w-4 text-[#7AB5A0]" />
                     Historial clínico
                   </span>
 
                   <h2 className="mt-2 text-xl font-semibold text-[#1B3A5C]">
-                    {pacienteSeleccionado.nombreCompleto}
+                    {obtenerNombrePaciente(pacienteSeleccionado)}
                   </h2>
 
                   <p className="mt-1 flex items-center gap-2 text-sm text-gray-500">
                     <Phone className="h-4 w-4" />
-                    {pacienteSeleccionado.clientPhone}
+                    {pacienteSeleccionado.clientPhone || "Sin teléfono"}
                   </p>
                 </div>
 
                 <button
                   type="button"
                   onClick={cerrarDetallePaciente}
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-[#1B3A5C] shadow-sm transition-all hover:bg-red-500 hover:text-white"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-white text-[#1B3A5C] shadow-sm transition-all hover:bg-red-500 hover:text-white"
                 >
                   <X className="h-5 w-5" />
                 </button>
               </div>
+
+              <div className="mt-4 grid grid-cols-3 gap-3">
+                <div className="rounded-2xl bg-white p-3 shadow-sm">
+                  <p className="text-xs font-semibold text-gray-400">
+                    Total citas
+                  </p>
+                  <p className="mt-1 text-lg font-bold text-[#1B3A5C]">
+                    {historialSeleccionado.length}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl bg-white p-3 shadow-sm">
+                  <p className="text-xs font-semibold text-gray-400">
+                    Atendidas
+                  </p>
+                  <p className="mt-1 text-lg font-bold text-[#1B3A5C]">
+                    {historialSeleccionado.filter((item) =>
+                      String(obtenerEstadoHistorial(item))
+                        .toLowerCase()
+                        .includes("atendida")
+                    ).length}
+                  </p>
+                </div>
+
+                <div className="rounded-2xl bg-white p-3 shadow-sm">
+                  <p className="text-xs font-semibold text-gray-400">
+                    Pendientes
+                  </p>
+                  <p className="mt-1 text-lg font-bold text-[#1B3A5C]">
+                    {historialSeleccionado.filter((item) =>
+                      String(obtenerEstadoHistorial(item))
+                        .toLowerCase()
+                        .includes("pendiente")
+                    ).length}
+                  </p>
+                </div>
+              </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-5 py-5">
-              {pacienteSeleccionado.historialClinico.length === 0 ? (
+            {/* BODY */}
+            <div
+              className="min-h-0 flex-1 overflow-y-auto px-5 py-5"
+              style={{
+                maxHeight: "500px",
+              }}
+            >
+              {historialSeleccionado.length === 0 ? (
                 <div className="py-16 text-center">
                   <CalendarDays className="mx-auto mb-4 h-14 w-14 text-gray-300" />
 
@@ -381,8 +473,10 @@ export default function PacientesPage() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {pacienteSeleccionado.historialClinico.map((item, index) => {
-                    const estado = String(item.status || "").toLowerCase();
+                  {historialSeleccionado.map((item, index) => {
+                    const estado = String(
+                      obtenerEstadoHistorial(item)
+                    ).toLowerCase();
 
                     const colorEstado = estado.includes("atendida")
                       ? "bg-[#7AB5A0]/15 text-[#1B3A5C]"
@@ -400,42 +494,245 @@ export default function PacientesPage() {
                       ? History
                       : Clock;
 
+                    const insumos = Array.isArray(item.insumosUsados)
+                      ? item.insumosUsados
+                      : [];
+
+                    const tieneAtencion =
+                      item.detalleAtencion ||
+                      item.montoCobrar !== undefined ||
+                      item.montoPagado !== undefined ||
+                      item.saldoPendiente !== undefined ||
+                      item.metodoPago ||
+                      insumos.length > 0;
+
                     return (
                       <div
-                        key={`${item.citaId}-${index}`}
-                        className="rounded-3xl border border-black/5 bg-white p-5 shadow-sm"
+                        key={`${item.citaId || "cita"}-${index}`}
+                        className="overflow-hidden rounded-[30px] border border-black/5 bg-white shadow-sm"
                       >
-                        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                          <div>
-                            <div className="mb-2 flex items-center gap-2">
-                              <CalendarDays className="h-5 w-5 text-[#7AB5A0]" />
+                        {/* ENCABEZADO CITA */}
+                        <div className="bg-[#f9fbfc] px-5 py-4">
+                          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                            <div>
+                              <div className="mb-2 flex items-center gap-2">
+                                <CalendarDays className="h-5 w-5 text-[#7AB5A0]" />
 
-                              <h3 className="font-semibold text-[#1B3A5C]">
-                                {item.dateFormatted} - {item.time}
-                              </h3>
+                                <h3 className="font-semibold text-[#1B3A5C]">
+                                  {obtenerFechaHistorial(item)} -{" "}
+                                  {obtenerHoraHistorial(item)}
+                                </h3>
+                              </div>
+
+                              <p className="text-xs font-semibold text-gray-400">
+                                Motivo de consulta
+                              </p>
+
+                              <p className="mt-1 text-sm font-medium text-[#1B3A5C]">
+                                {obtenerMotivoHistorial(item)}
+                              </p>
                             </div>
 
-                            <p className="text-sm text-gray-400">
-                              Motivo de consulta
-                            </p>
-
-                            <p className="mt-1 text-sm font-medium text-[#1B3A5C]">
-                              {item.motivo}
-                            </p>
+                            <span
+                              className={`inline-flex w-fit items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold capitalize ${colorEstado}`}
+                            >
+                              <IconoEstado className="h-4 w-4" />
+                              {obtenerEstadoHistorial(item)}
+                            </span>
                           </div>
+                        </div>
 
-                          <span
-                            className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold capitalize ${colorEstado}`}
-                          >
-                            <IconoEstado className="h-4 w-4" />
-                            {item.status}
-                          </span>
+                        {/* CONTENIDO ATENCIÓN */}
+                        <div className="space-y-4 p-5">
+                          {tieneAtencion ? (
+                            <>
+                              {item.detalleAtencion && (
+                                <div className="rounded-[24px] border border-black/5 bg-[#f9fbfc] p-4">
+                                  <div className="mb-2 flex items-center gap-2">
+                                    <ClipboardList className="h-4 w-4 text-[#7AB5A0]" />
+
+                                    <h4 className="text-sm font-semibold text-[#1B3A5C]">
+                                      Detalle de atención
+                                    </h4>
+                                  </div>
+
+                                  <p className="rounded-[20px] bg-white p-3 text-sm leading-6 text-gray-600">
+                                    {item.detalleAtencion}
+                                  </p>
+                                </div>
+                              )}
+
+                              <div className="rounded-[24px] border border-black/5 bg-[#f9fbfc] p-4">
+                                <div className="mb-3 flex items-center gap-2">
+                                  <Wallet className="h-4 w-4 text-[#7AB5A0]" />
+
+                                  <h4 className="text-sm font-semibold text-[#1B3A5C]">
+                                    Información de pago
+                                  </h4>
+                                </div>
+
+                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                                  <div className="rounded-[20px] bg-white p-3">
+                                    <div className="mb-1 flex items-center gap-2">
+                                      <DollarSign className="h-4 w-4 text-[#7AB5A0]" />
+                                      <p className="text-xs font-semibold text-gray-400">
+                                        Cobro
+                                      </p>
+                                    </div>
+
+                                    <p className="text-sm font-bold text-[#1B3A5C]">
+                                      {formatearMoneda(item.montoCobrar)}
+                                    </p>
+                                  </div>
+
+                                  <div className="rounded-[20px] bg-white p-3">
+                                    <div className="mb-1 flex items-center gap-2">
+                                      <ReceiptText className="h-4 w-4 text-[#7AB5A0]" />
+                                      <p className="text-xs font-semibold text-gray-400">
+                                        Pagado
+                                      </p>
+                                    </div>
+
+                                    <p className="text-sm font-bold text-[#1B3A5C]">
+                                      {formatearMoneda(item.montoPagado)}
+                                    </p>
+                                  </div>
+
+                                  <div className="rounded-[20px] bg-white p-3">
+                                    <p className="text-xs font-semibold text-gray-400">
+                                      Pendiente
+                                    </p>
+
+                                    <p
+                                      className={`mt-1 text-sm font-bold ${
+                                        Number(item.saldoPendiente || 0) > 0
+                                          ? "text-red-500"
+                                          : "text-[#1B3A5C]"
+                                      }`}
+                                    >
+                                      {formatearMoneda(item.saldoPendiente)}
+                                    </p>
+                                  </div>
+
+                                  <div className="rounded-[20px] bg-white p-3">
+                                    <p className="text-xs font-semibold text-gray-400">
+                                      Método
+                                    </p>
+
+                                    <div className="mt-1 flex items-center gap-2 text-sm font-bold capitalize text-[#1B3A5C]">
+                                      <CreditCard className="h-4 w-4 text-[#7AB5A0]" />
+                                      {item.metodoPago || "No registrado"}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="rounded-[24px] border border-black/5 bg-[#f9fbfc] p-4">
+                                <div className="mb-3 flex items-center gap-2">
+                                  <Package className="h-4 w-4 text-[#7AB5A0]" />
+
+                                  <h4 className="text-sm font-semibold text-[#1B3A5C]">
+                                    Insumos utilizados
+                                  </h4>
+                                </div>
+
+                                {insumos.length > 0 ? (
+                                  <div className="space-y-2">
+                                    {insumos.map((insumo, i) => (
+                                      <div
+                                        key={`${insumo.insumoId || i}-${i}`}
+                                        className="rounded-[20px] bg-white p-3"
+                                      >
+                                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                          <div>
+                                            <p className="text-sm font-semibold text-[#1B3A5C]">
+                                              {insumo.nombre ||
+                                                "Insumo sin nombre"}
+                                            </p>
+
+                                            {insumo.categoria && (
+                                              <p className="mt-0.5 text-xs text-gray-400">
+                                                {insumo.categoria}
+                                              </p>
+                                            )}
+                                          </div>
+
+                                          <div className="flex flex-wrap gap-2">
+                                            <span className="rounded-full bg-[#7AB5A0]/15 px-3 py-1 text-xs font-semibold text-[#1B3A5C]">
+                                              Usado: {insumo.cantidad}
+                                            </span>
+
+                                            {insumo.existenciaAnterior !==
+                                              undefined && (
+                                              <span className="rounded-full bg-[#f4f7fa] px-3 py-1 text-xs font-semibold text-[#1B3A5C]">
+                                                Antes:{" "}
+                                                {insumo.existenciaAnterior}
+                                              </span>
+                                            )}
+
+                                            {insumo.existenciaNueva !==
+                                              undefined && (
+                                              <span className="rounded-full bg-[#f4f7fa] px-3 py-1 text-xs font-semibold text-[#1B3A5C]">
+                                                Después:{" "}
+                                                {insumo.existenciaNueva}
+                                              </span>
+                                            )}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <div className="rounded-[20px] bg-white p-3 text-sm text-gray-400">
+                                    No se registraron insumos utilizados en esta
+                                    atención.
+                                  </div>
+                                )}
+                              </div>
+
+                              {item.fechaAtencion && (
+                                <div className="rounded-[24px] border border-[#7AB5A0]/20 bg-[#7AB5A0]/10 p-4">
+                                  <p className="text-xs font-semibold text-gray-500">
+                                    Fecha de atención registrada
+                                  </p>
+
+                                  <p className="mt-1 text-sm font-semibold text-[#1B3A5C]">
+                                    {new Date(
+                                      item.fechaAtencion
+                                    ).toLocaleString("es-GT")}
+                                  </p>
+                                </div>
+                              )}
+                            </>
+                          ) : (
+                            <div className="rounded-[24px] border border-dashed border-black/10 bg-[#f9fbfc] p-5 text-center">
+                              <ClipboardList className="mx-auto mb-2 h-8 w-8 text-gray-300" />
+
+                              <p className="text-sm font-medium text-gray-400">
+                                Esta cita todavía no tiene detalle clínico
+                                registrado.
+                              </p>
+                            </div>
+                          )}
                         </div>
                       </div>
                     );
                   })}
                 </div>
               )}
+            </div>
+
+            {/* FOOTER */}
+            <div className="shrink-0 border-t border-black/5 bg-white px-5 py-4">
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={cerrarDetallePaciente}
+                  className="rounded-2xl bg-[#1B3A5C] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#7AB5A0]"
+                >
+                  Cerrar historial
+                </button>
+              </div>
             </div>
           </div>
         </div>
